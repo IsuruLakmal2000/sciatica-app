@@ -3,6 +3,7 @@ import '../theme/app_theme.dart';
 import '../state/app_state.dart';
 import '../models/pain_entry.dart';
 import '../widgets/pain_score_selector.dart';
+import '../widgets/contribution_chart.dart';
 
 class PainDiaryScreen extends StatefulWidget {
   const PainDiaryScreen({super.key});
@@ -23,6 +24,13 @@ class _PainDiaryScreenState extends State<PainDiaryScreen> {
           slivers: [
             SliverToBoxAdapter(child: _buildHeader()),
             SliverToBoxAdapter(child: _buildInsightCards(state)),
+            SliverToBoxAdapter(
+              child: ExerciseContributionChart(
+                completedExercises: state.completedExercises,
+                currentStreak: state.gamification.currentStreak,
+                longestStreak: state.gamification.longestStreak,
+              ),
+            ),
             SliverToBoxAdapter(child: _buildTrendGraph(state)),
             SliverToBoxAdapter(child: _buildSectionTitle('History')),
             SliverList(
