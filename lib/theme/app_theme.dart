@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppColors {
+  static bool isDark = true;
+
   // ── Dark Mode Base ──
-  static const Color espressoBrown = Color(0xFF1C1410);
-  static const Color darkSurface = Color(0xFF251A12);
-  static const Color warmBorder = Color(0xFF3A2A1E);
-  static const Color darkElevated = Color(0xFF2E1F15);
+  static Color get espressoBrown => isDark ? const Color(0xFF1C1410) : const Color(0xFFF5ECD7);
+  static Color get darkSurface => isDark ? const Color(0xFF251A12) : const Color(0xFFFFFFFF);
+  static Color get warmBorder => isDark ? const Color(0xFF3A2A1E) : const Color(0xFFE8DCC4);
+  static Color get darkElevated => isDark ? const Color(0xFF2E1F15) : const Color(0xFFE8DCC4);
 
   // ── Primary Accent ──
   static const Color burntOrange = Color(0xFFE8632A);
@@ -26,9 +28,9 @@ class AppColors {
   static const Color sandyCreamDark = Color(0xFFE8DCC4);
 
   // ── Text ──
-  static const Color textPrimary = Color(0xFFF5ECD7);
-  static const Color textSecondary = Color(0xFFA89080);
-  static const Color textMuted = Color(0xFF7A6A5A);
+  static Color get textPrimary => isDark ? const Color(0xFFF5ECD7) : const Color(0xFF2D1A0E);
+  static Color get textSecondary => isDark ? const Color(0xFFA89080) : const Color(0xFF6B5A4E);
+  static Color get textMuted => isDark ? const Color(0xFF7A6A5A) : const Color(0xFF9A8A7A);
   static const Color textOnOrange = Color(0xFFFFFFFF);
 
   // ── Danger ──
@@ -144,7 +146,7 @@ class AppTheme {
       useMaterial3: true,
       brightness: Brightness.dark,
       scaffoldBackgroundColor: AppColors.espressoBrown,
-      colorScheme: const ColorScheme.dark(
+      colorScheme: ColorScheme.dark(
         primary: AppColors.burntOrange,
         onPrimary: Colors.white,
         secondary: AppColors.warmGold,
@@ -172,7 +174,7 @@ class AppTheme {
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
-          side: const BorderSide(color: AppColors.warmBorder, width: 1),
+          side: BorderSide(color: AppColors.warmBorder, width: 1),
         ),
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       ),
@@ -234,13 +236,13 @@ class AppTheme {
           return AppColors.warmBorder;
         }),
       ),
-      sliderTheme: const SliderThemeData(
+      sliderTheme: SliderThemeData(
         activeTrackColor: AppColors.burntOrange,
         inactiveTrackColor: AppColors.warmBorder,
         thumbColor: AppColors.burntOrange,
         overlayColor: Color(0x29E8632A),
       ),
-      dividerTheme: const DividerThemeData(
+      dividerTheme: DividerThemeData(
         color: AppColors.warmBorder,
         thickness: 1,
       ),
@@ -260,11 +262,11 @@ class AppTheme {
         ),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
-          side: const BorderSide(color: AppColors.warmBorder),
+          side: BorderSide(color: AppColors.warmBorder),
         ),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       ),
-      iconTheme: const IconThemeData(
+      iconTheme: IconThemeData(
         color: AppColors.textSecondary,
         size: 24,
       ),
@@ -273,11 +275,11 @@ class AppTheme {
         fillColor: AppColors.darkSurface,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.warmBorder),
+          borderSide: BorderSide(color: AppColors.warmBorder),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.warmBorder),
+          borderSide: BorderSide(color: AppColors.warmBorder),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),

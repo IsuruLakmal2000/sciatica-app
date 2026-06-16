@@ -57,7 +57,7 @@ class BadgeCard extends StatelessWidget {
                     shape: BoxShape.circle,
                     color: AppColors.espressoBrown.withAlpha(180),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.lock,
                     color: AppColors.textMuted,
                     size: 18,

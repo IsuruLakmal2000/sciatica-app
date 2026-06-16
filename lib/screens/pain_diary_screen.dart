@@ -57,7 +57,7 @@ class _PainDiaryScreenState extends State<PainDiaryScreen> {
   }
 
   Widget _buildHeader() {
-    return const Padding(
+    return Padding(
       padding: EdgeInsets.fromLTRB(20, 16, 20, 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -166,7 +166,7 @@ class _PainDiaryScreenState extends State<PainDiaryScreen> {
           const SizedBox(height: 2),
           Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.textMuted,
               fontSize: 10,
               fontWeight: FontWeight.w500,
@@ -195,7 +195,7 @@ class _PainDiaryScreenState extends State<PainDiaryScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Pain Trend',
             style: TextStyle(
               color: AppColors.textPrimary,
@@ -217,12 +217,12 @@ class _PainDiaryScreenState extends State<PainDiaryScreen> {
             children: [
               Text(
                 _formatDate(graphEntries.first.date),
-                style: const TextStyle(
+                style: TextStyle(
                     color: AppColors.textMuted, fontSize: 10),
               ),
               Text(
                 _formatDate(graphEntries.last.date),
-                style: const TextStyle(
+                style: TextStyle(
                     color: AppColors.textMuted, fontSize: 10),
               ),
             ],
@@ -237,7 +237,7 @@ class _PainDiaryScreenState extends State<PainDiaryScreen> {
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
       child: Text(
         title,
-        style: const TextStyle(
+        style: TextStyle(
           color: AppColors.textPrimary,
           fontSize: 18,
           fontWeight: FontWeight.w700,
@@ -283,7 +283,7 @@ class _PainDiaryScreenState extends State<PainDiaryScreen> {
               children: [
                 Text(
                   _formatDateFull(entry.date),
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.textPrimary,
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -303,7 +303,7 @@ class _PainDiaryScreenState extends State<PainDiaryScreen> {
                         ),
                         child: Text(
                           t,
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: AppColors.textMuted,
                             fontSize: 10,
                           ),
@@ -316,7 +316,7 @@ class _PainDiaryScreenState extends State<PainDiaryScreen> {
                   const SizedBox(height: 4),
                   Text(
                     entry.notes,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.textSecondary,
                       fontSize: 12,
                     ),
@@ -339,7 +339,7 @@ class _PainDiaryScreenState extends State<PainDiaryScreen> {
         children: [
           Icon(Icons.edit_note, color: AppColors.textMuted, size: 48),
           const SizedBox(height: 12),
-          const Text(
+          Text(
             'No entries yet',
             style: TextStyle(
               color: AppColors.textSecondary,
@@ -348,7 +348,7 @@ class _PainDiaryScreenState extends State<PainDiaryScreen> {
             ),
           ),
           const SizedBox(height: 4),
-          const Text(
+          Text(
             'Tap + to log your first pain entry',
             style: TextStyle(color: AppColors.textMuted, fontSize: 13),
           ),
@@ -370,7 +370,7 @@ class _PainDiaryScreenState extends State<PainDiaryScreen> {
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setSheetState) => Container(
           height: MediaQuery.of(ctx).size.height * 0.8,
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             color: AppColors.darkSurface,
             borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
           ),
@@ -388,7 +388,7 @@ class _PainDiaryScreenState extends State<PainDiaryScreen> {
                 ),
               ),
               const SizedBox(height: 20),
-              const Text(
+              Text(
                 'Log Pain',
                 style: TextStyle(
                   color: AppColors.textPrimary,
@@ -397,7 +397,7 @@ class _PainDiaryScreenState extends State<PainDiaryScreen> {
                 ),
               ),
               const SizedBox(height: 20),
-              const Text(
+              Text(
                 'Pain Score',
                 style: TextStyle(
                   color: AppColors.textPrimary,
@@ -411,7 +411,7 @@ class _PainDiaryScreenState extends State<PainDiaryScreen> {
                 onScoreSelected: (s) => setSheetState(() => score = s),
               ),
               const SizedBox(height: 20),
-              const Text(
+              Text(
                 'What triggered it?',
                 style: TextStyle(
                   color: AppColors.textPrimary,
@@ -464,7 +464,7 @@ class _PainDiaryScreenState extends State<PainDiaryScreen> {
                 }).toList(),
               ),
               const SizedBox(height: 20),
-              const Text(
+              Text(
                 'Notes (optional)',
                 style: TextStyle(
                   color: AppColors.textPrimary,
@@ -476,7 +476,7 @@ class _PainDiaryScreenState extends State<PainDiaryScreen> {
               TextField(
                 controller: notesController,
                 maxLines: 3,
-                style: const TextStyle(
+                style: TextStyle(
                     color: AppColors.textPrimary, fontSize: 14),
                 decoration: const InputDecoration(
                   hintText: 'Any additional details...',

@@ -3,6 +3,7 @@ import '../theme/app_theme.dart';
 import '../data/exercise_data.dart';
 import '../models/exercise.dart';
 import 'exercise_detail_screen.dart';
+import '../state/app_state.dart';
 
 class ExerciseLibraryScreen extends StatefulWidget {
   const ExerciseLibraryScreen({super.key});
@@ -27,6 +28,7 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    AppStateProvider.of(context);
     return Scaffold(
       backgroundColor: AppColors.espressoBrown,
       body: SafeArea(
@@ -53,7 +55,7 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
   }
 
   Widget _buildHeader() {
-    return const Padding(
+    return Padding(
       padding: EdgeInsets.fromLTRB(20, 16, 20, 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -219,7 +221,7 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
                 children: [
                   Text(
                     exercise.name,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.textPrimary,
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
@@ -238,7 +240,7 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
                       const SizedBox(width: 3),
                       Text(
                         exercise.durationDisplay,
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: AppColors.textMuted,
                           fontSize: 11,
                         ),

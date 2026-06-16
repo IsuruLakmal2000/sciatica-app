@@ -107,7 +107,7 @@ class _ExerciseContributionChartState extends State<ExerciseContributionChart> {
                   const SizedBox(height: 2),
                   Text(
                     '$currentMonthName ${now.year}',
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.textMuted,
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
@@ -150,7 +150,7 @@ class _ExerciseContributionChartState extends State<ExerciseContributionChart> {
                 child: Center(
                   child: Text(
                     label,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.textMuted,
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
@@ -323,7 +323,7 @@ class _ExerciseContributionChartState extends State<ExerciseContributionChart> {
             Expanded(
               child: Text(
                 msg,
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppColors.textPrimary,
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
@@ -338,7 +338,7 @@ class _ExerciseContributionChartState extends State<ExerciseContributionChart> {
   }
 
   Widget _buildLegend(bool isDark) {
-    final labelStyle = const TextStyle(
+    final labelStyle = TextStyle(
       color: AppColors.textMuted,
       fontSize: 9,
       fontWeight: FontWeight.w500,

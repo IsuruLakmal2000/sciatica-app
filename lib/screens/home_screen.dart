@@ -9,6 +9,7 @@ import '../widgets/stat_card.dart';
 import '../models/pain_entry.dart';
 import 'session_player_screen.dart';
 import 'bedtime_screen.dart';
+import 'custom_session_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -33,7 +34,8 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final state = AppStateProvider.of(context);
     final gam = state.gamification;
-    final exercises = state.todaysExercises;
+    final exercises = state.customSessionExercises;
+    final hasExercises = exercises.isNotEmpty;
 
     return Scaffold(
       backgroundColor: AppColors.espressoBrown,
@@ -44,16 +46,147 @@ class _HomeScreenState extends State<HomeScreen> {
             SliverToBoxAdapter(child: _buildFlareUpButton(state)),
             SliverToBoxAdapter(child: _buildPainSection(state)),
             SliverToBoxAdapter(child: _buildQuickStats(state, gam)),
-            SliverToBoxAdapter(child: _buildSectionTitle('Today\'s Session')),
             SliverToBoxAdapter(
-              child: _buildExerciseList(state, exercises),
+              child: _buildCustomSessionHeader(context, hasExercises),
             ),
-            SliverToBoxAdapter(child: _buildStartButton(exercises)),
+            if (!hasExercises)
+              SliverToBoxAdapter(
+                child: _buildEmptyCustomSessionCard(context),
+              )
+            else ...[
+              SliverToBoxAdapter(
+                child: _buildExerciseList(state, exercises),
+              ),
+              SliverToBoxAdapter(child: _buildStartButton(exercises)),
+            ],
             SliverToBoxAdapter(child: _buildBedtimeCard()),
             const SliverPadding(padding: EdgeInsets.only(bottom: 100)),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildCustomSessionHeader(BuildContext context, bool hasExercises) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 10),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            'Custom Session',
+            style: TextStyle(
+              color: AppColors.textPrimary,
+              fontSize: 18,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          if (hasExercises)
+            GestureDetector(
+              onTap: () => _navigateToCustomize(context),
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.edit_rounded, size: 14, color: AppColors.burntOrange),
+                  SizedBox(width: 4),
+                  Text(
+                    'Edit',
+                    style: TextStyle(
+                      color: AppColors.burntOrange,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyCustomSessionCard(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      child: Container(
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: AppColors.darkSurface,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: AppColors.warmBorder),
+        ),
+        child: Column(
+          children: [
+            Container(
+              width: 56,
+              height: 56,
+              decoration: BoxDecoration(
+                color: AppColors.burntOrange.withAlpha(15),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.playlist_add_rounded,
+                color: AppColors.burntOrange,
+                size: 32,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Build Your Session',
+              style: TextStyle(
+                color: AppColors.textPrimary,
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              'Design a custom routine that matches your physical therapy goals and exercises.',
+              style: TextStyle(
+                color: AppColors.textSecondary,
+                fontSize: 13,
+                height: 1.4,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 20),
+            SizedBox(
+              width: double.infinity,
+              height: 48,
+              child: ElevatedButton(
+                onPressed: () => _navigateToCustomize(context),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.burntOrange,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.add_rounded, color: Colors.white, size: 20),
+                    SizedBox(width: 6),
+                    Text(
+                      'Create Custom Session',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _navigateToCustomize(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => const CustomSessionScreen()),
     );
   }
 
@@ -262,7 +395,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       state.isFlareUpMode
                           ? 'Showing gentle, bed-friendly exercises only'
                           : 'Tap to switch to gentle exercises only',
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: AppColors.textMuted,
                         fontSize: 12,
                       ),
@@ -301,7 +434,7 @@ class _HomeScreenState extends State<HomeScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
+              Text(
                 'How\'s your pain today?',
                 style: TextStyle(
                   color: AppColors.textPrimary,
@@ -408,19 +541,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildSectionTitle(String title) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 10),
-      child: Text(
-        title,
-        style: const TextStyle(
-          color: AppColors.textPrimary,
-          fontSize: 18,
-          fontWeight: FontWeight.w700,
-        ),
-      ),
-    );
-  }
 
   Widget _buildExerciseList(AppState state, List<Exercise> exercises) {
     if (exercises.isEmpty) {
@@ -433,7 +553,7 @@ class _HomeScreenState extends State<HomeScreen> {
             borderRadius: BorderRadius.circular(16),
             border: Border.all(color: AppColors.warmBorder),
           ),
-          child: const Column(
+          child: Column(
             children: [
               Icon(Icons.check_circle, color: AppColors.forestGreen, size: 48),
               SizedBox(height: 12),
@@ -572,7 +692,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               const SizedBox(width: 14),
-              const Expanded(
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -595,7 +715,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ],
                 ),
               ),
-              const Icon(
+              Icon(
                 Icons.chevron_right,
                 color: AppColors.textMuted,
               ),

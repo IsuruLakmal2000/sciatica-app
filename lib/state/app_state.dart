@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user_profile.dart';
 import '../models/gamification.dart';
 import '../models/pain_entry.dart';
@@ -17,6 +18,7 @@ class AppState extends ChangeNotifier {
   bool _isFlareUpMode = false;
   bool _isLoading = true;
   int _todaysPainScore = 0;
+  List<String> _customSessionExerciseIds = [];
 
   // ── Getters ──
   UserProfile get profile => _profile;
@@ -27,6 +29,34 @@ class AppState extends ChangeNotifier {
   bool get isLoading => _isLoading;
   int get todaysPainScore => _todaysPainScore;
   bool get hasCompletedOnboarding => _profile.onboardingCompleted;
+  List<String> get customSessionExerciseIds => _customSessionExerciseIds;
+
+  List<Exercise> get customSessionExercises {
+    return _customSessionExerciseIds
+        .map((id) => ExerciseData.allExercises.firstWhere((e) => e.id == id, orElse: () => ExerciseData.allExercises.first))
+        .toList();
+  }
+
+  Future<void> loadCustomSession() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      _customSessionExerciseIds = prefs.getStringList('custom_session_exercises') ?? [];
+    } catch (e) {
+      debugPrint('Error loading custom session: $e');
+    }
+  }
+
+  Future<void> saveCustomSession(List<String> exerciseIds) async {
+    _customSessionExerciseIds = exerciseIds;
+    notifyListeners();
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setStringList('custom_session_exercises', exerciseIds);
+    } catch (e) {
+      debugPrint('Error saving custom session: $e');
+    }
+  }
 
   /// Today's exercises based on pain level and flare-up mode
   List<Exercise> get todaysExercises {
@@ -168,6 +198,7 @@ class AppState extends ChangeNotifier {
       );
 
       await _loadAll();
+      await loadCustomSession();
     } catch (e, stack) {
       debugPrint('DB Error during initialize: $e');
       debugPrint(stack.toString());

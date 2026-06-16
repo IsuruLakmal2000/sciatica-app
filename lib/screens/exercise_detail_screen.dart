@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../models/exercise.dart';
 import 'session_player_screen.dart';
+import '../widgets/exercise_animation_player.dart';
+import '../state/app_state.dart';
 
 class ExerciseDetailScreen extends StatelessWidget {
   final Exercise exercise;
@@ -13,6 +15,7 @@ class ExerciseDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    AppStateProvider.of(context);
     return Scaffold(
       backgroundColor: AppColors.espressoBrown,
       appBar: AppBar(
@@ -20,10 +23,10 @@ class ExerciseDetailScreen extends StatelessWidget {
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: AppColors.textPrimary, size: 20),
+          icon: Icon(Icons.arrow_back_ios_new_rounded, color: AppColors.textPrimary, size: 20),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: const Text(
+        title: Text(
           'Exercise Details',
           style: TextStyle(
             color: AppColors.textPrimary,
@@ -57,13 +60,41 @@ class ExerciseDetailScreen extends StatelessWidget {
   }
 
   Widget _buildImagePlaceholder(Exercise exercise) {
+    if (exercise.imageAssets.isNotEmpty) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        child: Stack(
+          children: [
+            ExerciseAnimationPlayer(
+              imageAssets: exercise.imageAssets,
+              height: 220,
+            ),
+            Positioned(
+              top: 16,
+              right: 16,
+              child: Row(
+                children: [
+                  if (exercise.flareUpFriendly)
+                    _buildOverlayBadge('Flare-up Safe', AppColors.forestGreen),
+                  if (exercise.bedFriendly) ...[
+                    const SizedBox(width: 6),
+                    _buildOverlayBadge('Bed-friendly', const Color(0xFFB4A0E8)),
+                  ],
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       height: 220,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(24),
         border: Border.all(color: AppColors.warmBorder, width: 1.5),
-        gradient: const LinearGradient(
+        gradient: LinearGradient(
           colors: [
             AppColors.darkSurface,
             AppColors.espressoBrown,
@@ -140,7 +171,7 @@ class ExerciseDetailScreen extends StatelessWidget {
                     color: AppColors.warmBorder.withAlpha(60),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: const Text(
+                  child: Text(
                     'EXERCISE DEMONSTRATION',
                     style: TextStyle(
                       color: AppColors.textSecondary,
@@ -211,7 +242,7 @@ class ExerciseDetailScreen extends StatelessWidget {
               Expanded(
                 child: Text(
                   exercise.name,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.textPrimary,
                     fontSize: 24,
                     fontWeight: FontWeight.w800,
@@ -248,7 +279,7 @@ class ExerciseDetailScreen extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             exercise.description,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.textSecondary,
               fontSize: 14,
               height: 1.5,
@@ -309,7 +340,7 @@ class ExerciseDetailScreen extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.textMuted,
               fontSize: 11,
               fontWeight: FontWeight.w600,
@@ -318,7 +349,7 @@ class ExerciseDetailScreen extends StatelessWidget {
           const SizedBox(height: 2),
           Text(
             value,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.textPrimary,
               fontSize: 13,
               fontWeight: FontWeight.w700,
@@ -341,7 +372,7 @@ class ExerciseDetailScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Row(
             children: [
               Icon(Icons.format_list_numbered_rounded, color: AppColors.burntOrange, size: 20),
               SizedBox(width: 8),
@@ -386,7 +417,7 @@ class ExerciseDetailScreen extends StatelessWidget {
                   Expanded(
                     child: Text(
                       step,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: AppColors.textSecondary,
                         fontSize: 14,
                         height: 1.45,
@@ -427,7 +458,7 @@ class ExerciseDetailScreen extends StatelessWidget {
             children: [
               Icon(Icons.warning_amber_rounded, color: AppColors.dangerRedLight, size: 20),
               const SizedBox(width: 8),
-              const Text(
+              Text(
                 'Common Mistakes',
                 style: TextStyle(
                   color: AppColors.textPrimary,
@@ -452,7 +483,7 @@ class ExerciseDetailScreen extends StatelessWidget {
                   Expanded(
                     child: Text(
                       mistake,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: AppColors.textSecondary,
                         fontSize: 14,
                         height: 1.4,
@@ -489,7 +520,7 @@ class ExerciseDetailScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Row(
             children: [
               Icon(Icons.tune_rounded, color: AppColors.warmGold, size: 20),
               SizedBox(width: 8),
@@ -518,7 +549,7 @@ class ExerciseDetailScreen extends StatelessWidget {
                   Expanded(
                     child: Text(
                       modification,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: AppColors.textSecondary,
                         fontSize: 14,
                         height: 1.4,
@@ -537,7 +568,7 @@ class ExerciseDetailScreen extends StatelessWidget {
   Widget _buildStickyBottomButton(BuildContext context, Exercise exercise) {
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: AppColors.espressoBrown,
         border: Border(
           top: BorderSide(color: AppColors.warmBorder, width: 1),

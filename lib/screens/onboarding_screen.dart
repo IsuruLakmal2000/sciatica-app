@@ -144,7 +144,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           borderRadius: BorderRadius.circular(14),
                           border: Border.all(color: AppColors.warmBorder),
                         ),
-                        child: const Icon(
+                        child: Icon(
                           Icons.arrow_back,
                           color: AppColors.textPrimary,
                         ),
@@ -230,7 +230,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             ),
           ),
           const SizedBox(height: 32),
-          const Text(
+          Text(
             'Welcome to\nSciatica Relief',
             textAlign: TextAlign.center,
             style: TextStyle(
@@ -281,7 +281,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           const SizedBox(width: 6),
           Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.textPrimary,
               fontSize: 12,
               fontWeight: FontWeight.w600,
@@ -299,7 +299,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 40),
-          const Text(
+          Text(
             'What should we\ncall you?',
             style: TextStyle(
               color: AppColors.textPrimary,
@@ -309,7 +309,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             ),
           ),
           const SizedBox(height: 12),
-          const Text(
+          Text(
             'We\'ll use this to personalise your experience.',
             style: TextStyle(
               color: AppColors.textSecondary,
@@ -319,7 +319,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           const SizedBox(height: 32),
           TextField(
             controller: _nameController,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.textPrimary,
               fontSize: 18,
             ),
@@ -406,7 +406,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           const SizedBox(height: 24),
           Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.textPrimary,
               fontSize: 28,
               fontWeight: FontWeight.w800,
@@ -416,7 +416,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           const SizedBox(height: 12),
           Text(
             subtitle,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.textSecondary,
               fontSize: 15,
             ),
@@ -480,7 +480,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                             const SizedBox(height: 2),
                             Text(
                               option.description,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 color: AppColors.textMuted,
                                 fontSize: 12,
                               ),
@@ -520,7 +520,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 24),
-          const Text(
+          Text(
             'Your plan is\nready! 🎉',
             style: TextStyle(
               color: AppColors.textPrimary,
@@ -530,7 +530,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             ),
           ),
           const SizedBox(height: 12),
-          const Text(
+          Text(
             'Here\'s what we\'ve learned about you:',
             style: TextStyle(
               color: AppColors.textSecondary,
@@ -598,7 +598,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         children: [
           Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.textSecondary,
               fontSize: 14,
             ),

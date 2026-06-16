@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../data/education_data.dart';
+import '../state/app_state.dart';
 
 class EducationScreen extends StatelessWidget {
   const EducationScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    AppStateProvider.of(context);
     return Scaffold(
       backgroundColor: AppColors.espressoBrown,
       body: SafeArea(
@@ -30,7 +32,7 @@ class EducationScreen extends StatelessWidget {
   }
 
   Widget _buildHeader() {
-    return const Padding(
+    return Padding(
       padding: EdgeInsets.fromLTRB(20, 16, 20, 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -89,7 +91,7 @@ class EducationScreen extends StatelessWidget {
                 children: [
                   Text(
                     article.title,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.textPrimary,
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
@@ -98,7 +100,7 @@ class EducationScreen extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(
                     article.summary,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.textSecondary,
                       fontSize: 12,
                       height: 1.3,
@@ -109,12 +111,12 @@ class EducationScreen extends StatelessWidget {
                   const SizedBox(height: 6),
                   Row(
                     children: [
-                      const Icon(Icons.schedule,
+                      Icon(Icons.schedule,
                           size: 12, color: AppColors.textMuted),
                       const SizedBox(width: 4),
                       Text(
                         '${article.readingTimeMinutes} min read',
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: AppColors.textMuted,
                           fontSize: 11,
                           fontWeight: FontWeight.w500,
@@ -125,7 +127,7 @@ class EducationScreen extends StatelessWidget {
                 ],
               ),
             ),
-            const Icon(
+            Icon(
               Icons.chevron_right,
               color: AppColors.textMuted,
               size: 20,
@@ -152,12 +154,13 @@ class _ArticleDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    AppStateProvider.of(context);
     return Scaffold(
       backgroundColor: AppColors.espressoBrown,
       appBar: AppBar(
         backgroundColor: AppColors.espressoBrown,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
+          icon: Icon(Icons.arrow_back, color: AppColors.textPrimary),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
@@ -189,7 +192,7 @@ class _ArticleDetailScreen extends StatelessWidget {
             const SizedBox(height: 20),
             Text(
               article.title,
-              style: const TextStyle(
+              style: TextStyle(
                 color: AppColors.textPrimary,
                 fontSize: 24,
                 fontWeight: FontWeight.w800,
@@ -198,12 +201,12 @@ class _ArticleDetailScreen extends StatelessWidget {
             const SizedBox(height: 8),
             Row(
               children: [
-                const Icon(Icons.schedule,
+                Icon(Icons.schedule,
                     size: 14, color: AppColors.textMuted),
                 const SizedBox(width: 4),
                 Text(
                   '${article.readingTimeMinutes} min read',
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.textMuted,
                     fontSize: 13,
                   ),
@@ -211,7 +214,7 @@ class _ArticleDetailScreen extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 20),
-            const Divider(color: AppColors.warmBorder),
+            Divider(color: AppColors.warmBorder),
             const SizedBox(height: 20),
             // Article body — render with basic formatting
             ..._renderBody(article.body),
@@ -239,7 +242,7 @@ class _ArticleDetailScreen extends StatelessWidget {
           padding: const EdgeInsets.only(top: 12, bottom: 4),
           child: Text(
             trimmed.replaceAll('**', ''),
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.textPrimary,
               fontSize: 16,
               fontWeight: FontWeight.w700,
@@ -295,7 +298,7 @@ class _ArticleDetailScreen extends StatelessWidget {
       if (match.start > lastEnd) {
         spans.add(TextSpan(
           text: text.substring(lastEnd, match.start),
-          style: const TextStyle(
+          style: TextStyle(
             color: AppColors.textSecondary,
             fontSize: 14,
             height: 1.6,
@@ -304,7 +307,7 @@ class _ArticleDetailScreen extends StatelessWidget {
       }
       spans.add(TextSpan(
         text: match.group(1),
-        style: const TextStyle(
+        style: TextStyle(
           color: AppColors.textPrimary,
           fontSize: 14,
           fontWeight: FontWeight.w700,
@@ -317,7 +320,7 @@ class _ArticleDetailScreen extends StatelessWidget {
     if (lastEnd < text.length) {
       spans.add(TextSpan(
         text: text.substring(lastEnd),
-        style: const TextStyle(
+        style: TextStyle(
           color: AppColors.textSecondary,
           fontSize: 14,
           height: 1.6,

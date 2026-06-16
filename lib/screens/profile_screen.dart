@@ -4,6 +4,7 @@ import '../state/app_state.dart';
 import '../models/gamification.dart';
 import '../widgets/xp_bar.dart';
 import '../widgets/badge_card.dart';
+import 'settings_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -15,6 +16,21 @@ class ProfileScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: AppColors.espressoBrown,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        automaticallyImplyLeading: false,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.settings_rounded, color: AppColors.textPrimary, size: 24),
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const SettingsScreen()),
+              );
+            },
+          ),
+        ],
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
@@ -73,7 +89,7 @@ class ProfileScreen extends StatelessWidget {
           const SizedBox(height: 12),
           Text(
             state.profile.name.isNotEmpty ? state.profile.name : 'User',
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.textPrimary,
               fontSize: 22,
               fontWeight: FontWeight.w800,
@@ -148,7 +164,7 @@ class ProfileScreen extends StatelessWidget {
                       fontWeight: FontWeight.w800,
                     ),
                   ),
-                  const Text(
+                  Text(
                     'Current\nStreak',
                     style: TextStyle(
                       color: AppColors.textSecondary,
@@ -178,7 +194,7 @@ class ProfileScreen extends StatelessWidget {
                       fontWeight: FontWeight.w800,
                     ),
                   ),
-                  const Text(
+                  Text(
                     'Longest\nStreak',
                     style: TextStyle(
                       color: AppColors.textSecondary,
@@ -208,7 +224,7 @@ class ProfileScreen extends StatelessWidget {
                       fontWeight: FontWeight.w800,
                     ),
                   ),
-                  const Text(
+                  Text(
                     'Total\nSessions',
                     style: TextStyle(
                       color: AppColors.textSecondary,
@@ -252,7 +268,7 @@ class ProfileScreen extends StatelessWidget {
                 const Icon(Icons.emoji_events,
                     color: AppColors.warmGold, size: 20),
                 const SizedBox(width: 8),
-                const Expanded(
+                Expanded(
                   child: Text(
                     'Weekly Challenge',
                     style: TextStyle(
@@ -283,7 +299,7 @@ class ProfileScreen extends StatelessWidget {
             const SizedBox(height: 10),
             Text(
               'Complete $weeklyTarget sessions this week',
-              style: const TextStyle(
+              style: TextStyle(
                 color: AppColors.textSecondary,
                 fontSize: 13,
               ),
@@ -318,7 +334,7 @@ class ProfileScreen extends StatelessWidget {
                 const SizedBox(width: 10),
                 Text(
                   '$weeklyDone/$weeklyTarget',
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.textPrimary,
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
@@ -338,7 +354,7 @@ class ProfileScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Achievements',
             style: TextStyle(
               color: AppColors.textPrimary,
@@ -349,7 +365,7 @@ class ProfileScreen extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             '${gam.earnedBadges.length} of ${allBadges.length} unlocked',
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.textSecondary,
               fontSize: 13,
             ),
@@ -386,7 +402,7 @@ class ProfileScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Statistics',
             style: TextStyle(
               color: AppColors.textPrimary,
@@ -405,15 +421,15 @@ class ProfileScreen extends StatelessWidget {
             child: Column(
               children: [
                 _buildStatRow('Total XP Earned', '${gam.totalXP}'),
-                const Divider(color: AppColors.warmBorder, height: 20),
+                Divider(color: AppColors.warmBorder, height: 20),
                 _buildStatRow(
                     'Sessions Completed', '${gam.completedSessionCount}'),
-                const Divider(color: AppColors.warmBorder, height: 20),
+                Divider(color: AppColors.warmBorder, height: 20),
                 _buildStatRow(
                     'Current Level', '${gam.currentLevel} — ${gam.levelTitle}'),
-                const Divider(color: AppColors.warmBorder, height: 20),
+                Divider(color: AppColors.warmBorder, height: 20),
                 _buildStatRow('Pain Entries', '${state.painEntries.length}'),
-                const Divider(color: AppColors.warmBorder, height: 20),
+                Divider(color: AppColors.warmBorder, height: 20),
                 _buildStatRow(
                     'Badges Earned', '${gam.earnedBadges.length}/${allBadges.length}'),
               ],
@@ -430,14 +446,14 @@ class ProfileScreen extends StatelessWidget {
       children: [
         Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
             color: AppColors.textSecondary,
             fontSize: 14,
           ),
         ),
         Text(
           value,
-          style: const TextStyle(
+          style: TextStyle(
             color: AppColors.textPrimary,
             fontSize: 14,
             fontWeight: FontWeight.w700,

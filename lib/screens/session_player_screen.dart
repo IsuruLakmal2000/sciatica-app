@@ -3,6 +3,7 @@ import '../theme/app_theme.dart';
 import '../models/exercise.dart';
 import '../state/app_state.dart';
 import '../widgets/countdown_timer.dart';
+import '../widgets/exercise_animation_player.dart';
 
 class SessionPlayerScreen extends StatefulWidget {
   final List<Exercise> exercises;
@@ -97,6 +98,7 @@ class _SessionPlayerScreenState extends State<SessionPlayerScreen>
 
   @override
   Widget build(BuildContext context) {
+    AppStateProvider.of(context);
     if (_isCompleted) return _buildCompletionScreen();
 
     return Scaffold(
@@ -128,7 +130,7 @@ class _SessionPlayerScreenState extends State<SessionPlayerScreen>
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: AppColors.warmBorder),
               ),
-              child: const Icon(Icons.close, color: AppColors.textSecondary, size: 20),
+              child: Icon(Icons.close, color: AppColors.textSecondary, size: 20),
             ),
           ),
           Expanded(
@@ -136,7 +138,7 @@ class _SessionPlayerScreenState extends State<SessionPlayerScreen>
               children: [
                 Text(
                   '${_currentIndex + 1} of ${widget.exercises.length}',
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.textSecondary,
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
@@ -194,13 +196,25 @@ class _SessionPlayerScreenState extends State<SessionPlayerScreen>
   }
 
   Widget _buildPlayerContent() {
+    final showAnimation = !_isResting && _currentExercise.imageAssets.isNotEmpty;
+
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        // Exercise icon with pulse animation
-        AnimatedBuilder(
-          animation: _pulseController,
-          builder: (context, child) {
+        if (showAnimation)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32),
+            child: ExerciseAnimationPlayer(
+              imageAssets: _currentExercise.imageAssets,
+              isPaused: _isPaused,
+              height: 220,
+            ),
+          )
+        else
+          // Exercise icon with pulse animation
+          AnimatedBuilder(
+            animation: _pulseController,
+            builder: (context, child) {
             final scale = 1.0 + (_pulseController.value * 0.1);
             return Transform.scale(
               scale: _isPaused ? 1.0 : scale,
@@ -234,7 +248,7 @@ class _SessionPlayerScreenState extends State<SessionPlayerScreen>
         // Exercise name
         Text(
           _isResting ? 'Rest' : _currentExercise.name,
-          style: const TextStyle(
+          style: TextStyle(
             color: AppColors.textPrimary,
             fontSize: 24,
             fontWeight: FontWeight.w800,
@@ -246,7 +260,7 @@ class _SessionPlayerScreenState extends State<SessionPlayerScreen>
           _isResting
               ? 'Relax before the next set'
               : 'Set $_currentSet of ${_currentExercise.sets}',
-          style: const TextStyle(
+          style: TextStyle(
             color: AppColors.textSecondary,
             fontSize: 14,
           ),
@@ -267,7 +281,7 @@ class _SessionPlayerScreenState extends State<SessionPlayerScreen>
             padding: const EdgeInsets.symmetric(horizontal: 32),
             child: Text(
               _currentExercise.instructions[_currentStep],
-              style: const TextStyle(
+              style: TextStyle(
                 color: AppColors.textSecondary,
                 fontSize: 14,
                 height: 1.4,
@@ -363,7 +377,7 @@ class _SessionPlayerScreenState extends State<SessionPlayerScreen>
           const SizedBox(height: 4),
           Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.textMuted,
               fontSize: 11,
             ),
@@ -401,7 +415,7 @@ class _SessionPlayerScreenState extends State<SessionPlayerScreen>
                   ),
                 ),
                 const SizedBox(height: 24),
-                const Text(
+                Text(
                   'Session Complete! 🎉',
                   style: TextStyle(
                     color: AppColors.textPrimary,
@@ -410,7 +424,7 @@ class _SessionPlayerScreenState extends State<SessionPlayerScreen>
                   ),
                 ),
                 const SizedBox(height: 12),
-                const Text(
+                Text(
                   'Great job! You\'re one step closer to recovery.',
                   style: TextStyle(
                     color: AppColors.textSecondary,
@@ -444,7 +458,7 @@ class _SessionPlayerScreenState extends State<SessionPlayerScreen>
                         ),
                       ),
                       const SizedBox(height: 4),
-                      const Text(
+                      Text(
                         'Experience earned',
                         style: TextStyle(
                           color: AppColors.textSecondary,
@@ -475,7 +489,7 @@ class _SessionPlayerScreenState extends State<SessionPlayerScreen>
                                 fontWeight: FontWeight.w800,
                               ),
                             ),
-                            const Text(
+                            Text(
                               'Exercises',
                               style: TextStyle(
                                 color: AppColors.textMuted,
@@ -505,7 +519,7 @@ class _SessionPlayerScreenState extends State<SessionPlayerScreen>
                                 fontWeight: FontWeight.w800,
                               ),
                             ),
-                            const Text(
+                            Text(
                               'Minutes',
                               style: TextStyle(
                                 color: AppColors.textMuted,
@@ -545,11 +559,11 @@ class _SessionPlayerScreenState extends State<SessionPlayerScreen>
       builder: (ctx) => AlertDialog(
         backgroundColor: AppColors.darkSurface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text(
+        title: Text(
           'End session?',
           style: TextStyle(color: AppColors.textPrimary),
         ),
-        content: const Text(
+        content: Text(
           'Your progress will be saved, but you won\'t earn XP for remaining exercises.',
           style: TextStyle(color: AppColors.textSecondary),
         ),

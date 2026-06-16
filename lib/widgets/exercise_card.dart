@@ -90,7 +90,7 @@ class ExerciseCard extends StatelessWidget {
                       const SizedBox(width: 4),
                       Text(
                         duration,
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: AppColors.textMuted,
                           fontSize: 12,
                           fontWeight: FontWeight.w500,

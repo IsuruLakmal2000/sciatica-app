@@ -59,6 +59,73 @@ class Exercise {
         return category;
     }
   }
+
+  List<String> get imageAssets {
+    switch (id) {
+      case 'piriformis_stretch':
+        return const [
+          'Assets/excercises/piriformis stretch/1.jpg',
+          'Assets/excercises/piriformis stretch/2.jpg',
+        ];
+      case 'knee_to_chest':
+        return const [
+          'Assets/excercises/knee to chest/1.jpg',
+          'Assets/excercises/knee to chest/2.jpg',
+          'Assets/excercises/knee to chest/3.jpg',
+        ];
+      case 'sciatic_nerve_floss':
+        return const [
+          'Assets/excercises/sciatic nerve/1.jpg',
+          'Assets/excercises/sciatic nerve/2.jpg',
+          'Assets/excercises/sciatic nerve/3.jpg',
+        ];
+      case 'cat_cow':
+        return const [
+          'Assets/excercises/cat cow/1.jpg',
+          'Assets/excercises/cat cow/2.jpg',
+          'Assets/excercises/cat cow/3.jpg',
+          'Assets/excercises/cat cow/4.jpg',
+        ];
+      case 'hamstring_stretch':
+        return const [
+          'Assets/excercises/hamstring stretch/1.jpg',
+          'Assets/excercises/hamstring stretch/2.jpg',
+          'Assets/excercises/hamstring stretch/3.jpg',
+          'Assets/excercises/hamstring stretch/4.jpg',
+        ];
+      case 'hip_flexor_release':
+        return const [
+          'Assets/excercises/hip flexor/1.jpg',
+          'Assets/excercises/hip flexor/2.jpg',
+          'Assets/excercises/hip flexor/3.jpg',
+        ];
+      case 'glute_bridge':
+        return const [
+          'Assets/excercises/glute/1.jpg',
+          'Assets/excercises/glute/2.jpg',
+          'Assets/excercises/glute/3.jpg',
+        ];
+      case 'bird_dog':
+        return const [
+          'Assets/excercises/bird dog/1.jpg',
+          'Assets/excercises/bird dog/2.jpg',
+        ];
+      case 'mckenzie_extension':
+        return const [
+          'Assets/excercises/Mckenzie extension/1.jpg',
+          'Assets/excercises/Mckenzie extension/2.jpg',
+          'Assets/excercises/Mckenzie extension/3.jpg',
+        ];
+      case 'lumbar_decompression':
+        return const [
+          'Assets/excercises/lumber decmprs/1.jpg',
+          'Assets/excercises/lumber decmprs/2.jpg',
+          'Assets/excercises/lumber decmprs/3.jpg',
+        ];
+      default:
+        return const [];
+    }
+  }
 }
 
 class CompletedExercise {

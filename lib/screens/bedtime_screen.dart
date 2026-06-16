@@ -2,23 +2,24 @@ import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../data/exercise_data.dart';
 import 'session_player_screen.dart';
+import '../state/app_state.dart';
 
 class BedtimeScreen extends StatelessWidget {
   const BedtimeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    AppStateProvider.of(context);
     final exercises = ExerciseData.getBedtimeExercises();
-
     return Scaffold(
       backgroundColor: const Color(0xFF141018),
       appBar: AppBar(
         backgroundColor: const Color(0xFF141018),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
+          icon: Icon(Icons.arrow_back, color: AppColors.textPrimary),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: const Text(
+        title: Text(
           'Bedtime Wind-Down',
           style: TextStyle(color: AppColors.textPrimary, fontSize: 16),
         ),
@@ -47,7 +48,7 @@ class BedtimeScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
-            const Text(
+            Text(
               'Wind Down & Relax',
               style: TextStyle(
                 color: AppColors.textPrimary,
@@ -58,13 +59,13 @@ class BedtimeScreen extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               '${exercises.length} gentle stretches • ~5 minutes',
-              style: const TextStyle(
+              style: TextStyle(
                 color: AppColors.textSecondary,
                 fontSize: 14,
               ),
             ),
             const SizedBox(height: 8),
-            const Padding(
+            Padding(
               padding: EdgeInsets.symmetric(horizontal: 40),
               child: Text(
                 'Gentle lying stretches to decompress your spine before sleep, reducing morning stiffness.',
@@ -116,7 +117,7 @@ class BedtimeScreen extends StatelessWidget {
                             children: [
                               Text(
                                 exercise.name,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   color: AppColors.textPrimary,
                                   fontSize: 14,
                                   fontWeight: FontWeight.w600,
@@ -125,7 +126,7 @@ class BedtimeScreen extends StatelessWidget {
                               const SizedBox(height: 2),
                               Text(
                                 '${exercise.holdSeconds}s hold • ${exercise.sets} sets',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   color: AppColors.textMuted,
                                   fontSize: 12,
                                 ),

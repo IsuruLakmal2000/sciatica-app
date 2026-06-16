@@ -12,7 +12,7 @@ import 'screens/profile_screen.dart';
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setSystemUIOverlayStyle(
-    const SystemUiOverlayStyle(
+    SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
       statusBarIconBrightness: Brightness.light,
       systemNavigationBarColor: AppColors.darkSurface,
@@ -35,10 +35,12 @@ class _SciaticaAppState extends State<SciaticaApp> {
   void initState() {
     super.initState();
     _appState.initialize();
+    AppColors.isDark = _appState.profile.darkMode;
     _appState.addListener(_onStateChange);
   }
 
   void _onStateChange() {
+    AppColors.isDark = _appState.profile.darkMode;
     if (mounted) setState(() {});
   }
 
@@ -104,7 +106,7 @@ class _SplashScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
-            const Text(
+            Text(
               'Sciatica Relief',
               style: TextStyle(
                 color: AppColors.textPrimary,
@@ -153,7 +155,7 @@ class _MainNavigationState extends State<MainNavigation> {
         ],
       ),
       bottomNavigationBar: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           border: Border(
             top: BorderSide(color: AppColors.warmBorder, width: 1),
           ),
