@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import '../state/app_state.dart';
+import '../l10n/exercise_translations.dart';
+import '../l10n/app_localizations.dart';
 
 class Exercise {
   final String id;
@@ -41,6 +44,58 @@ class Exercise {
     final mins = durationSeconds ~/ 60;
     if (mins < 1) return '${durationSeconds}s';
     return '$mins min';
+  }
+
+  String getDurationDisplay(BuildContext context) {
+    final mins = durationSeconds ~/ 60;
+    if (mins < 1) {
+      return '$durationSeconds ${context.l10n('sec')}';
+    }
+    return '$mins ${context.l10n('min')}';
+  }
+
+  String getDifficultyDisplay(BuildContext context) {
+    return context.l10n('difficulty_$difficulty');
+  }
+
+  String getCategoryDisplay(BuildContext context) {
+    return context.l10n('category_$category');
+  }
+
+  String getName(BuildContext context) {
+    final state = AppStateProvider.maybeOf(context);
+    final lang = state?.languageCode ?? 'en';
+    return exerciseTranslations[lang]?['${id}_name'] ?? name;
+  }
+
+  String getDescription(BuildContext context) {
+    final state = AppStateProvider.maybeOf(context);
+    final lang = state?.languageCode ?? 'en';
+    return exerciseTranslations[lang]?['${id}_desc'] ?? description;
+  }
+
+  List<String> getInstructions(BuildContext context) {
+    final state = AppStateProvider.maybeOf(context);
+    final lang = state?.languageCode ?? 'en';
+    final list = exerciseTranslations[lang]?['${id}_inst'];
+    if (list != null) return List<String>.from(list);
+    return instructions;
+  }
+
+  List<String> getCommonMistakes(BuildContext context) {
+    final state = AppStateProvider.maybeOf(context);
+    final lang = state?.languageCode ?? 'en';
+    final list = exerciseTranslations[lang]?['${id}_mistakes'];
+    if (list != null) return List<String>.from(list);
+    return commonMistakes;
+  }
+
+  List<String> getModifications(BuildContext context) {
+    final state = AppStateProvider.maybeOf(context);
+    final lang = state?.languageCode ?? 'en';
+    final list = exerciseTranslations[lang]?['${id}_mods'];
+    if (list != null) return List<String>.from(list);
+    return modifications;
   }
 
   String get difficultyDisplay {

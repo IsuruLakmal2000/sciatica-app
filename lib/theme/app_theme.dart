@@ -16,8 +16,9 @@ class AppColors {
   static const Color burntOrangeDark = Color(0xFFC44D1A);
 
   // ── Secondary Accent ──
-  static const Color warmGold = Color(0xFFFFD580);
+  static const Color _warmGoldLight = Color(0xFFFFD580);
   static const Color warmGoldDark = Color(0xFFD4A84A);
+  static Color get warmGold => isDark ? _warmGoldLight : warmGoldDark;
 
   // ── Success / Recovery ──
   static const Color forestGreen = Color(0xFF4A9E5C);
@@ -295,6 +296,29 @@ class AppTheme {
         ),
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       ),
+      timePickerTheme: TimePickerThemeData(
+        backgroundColor: AppColors.darkSurface,
+        dialBackgroundColor: AppColors.espressoBrown,
+        dialHandColor: AppColors.burntOrange,
+        dialTextColor: AppColors.textPrimary,
+        entryModeIconColor: AppColors.burntOrange,
+        hourMinuteColor: WidgetStateColor.resolveWith((states) =>
+            states.contains(WidgetState.selected)
+                ? AppColors.burntOrange.withAlpha(50)
+                : AppColors.espressoBrown),
+        hourMinuteTextColor: WidgetStateColor.resolveWith((states) =>
+            states.contains(WidgetState.selected)
+                ? Colors.white
+                : AppColors.textPrimary),
+        dayPeriodColor: WidgetStateColor.resolveWith((states) =>
+            states.contains(WidgetState.selected)
+                ? AppColors.burntOrange
+                : AppColors.espressoBrown),
+        dayPeriodTextColor: WidgetStateColor.resolveWith((states) =>
+            states.contains(WidgetState.selected)
+                ? Colors.white
+                : AppColors.textPrimary),
+      ),
     );
   }
 
@@ -387,6 +411,29 @@ class AppTheme {
       dividerTheme: const DividerThemeData(
         color: AppColors.sandyCreamDark,
         thickness: 1,
+      ),
+      timePickerTheme: TimePickerThemeData(
+        backgroundColor: Colors.white,
+        dialBackgroundColor: AppColors.sandyCream,
+        dialHandColor: AppColors.burntOrange,
+        dialTextColor: const Color(0xFF2D1A0E),
+        entryModeIconColor: AppColors.burntOrange,
+        hourMinuteColor: WidgetStateColor.resolveWith((states) =>
+            states.contains(WidgetState.selected)
+                ? AppColors.burntOrange.withAlpha(50)
+                : AppColors.sandyCreamDark),
+        hourMinuteTextColor: WidgetStateColor.resolveWith((states) =>
+            states.contains(WidgetState.selected)
+                ? AppColors.burntOrange
+                : const Color(0xFF2D1A0E)),
+        dayPeriodColor: WidgetStateColor.resolveWith((states) =>
+            states.contains(WidgetState.selected)
+                ? AppColors.burntOrange
+                : AppColors.sandyCreamDark),
+        dayPeriodTextColor: WidgetStateColor.resolveWith((states) =>
+            states.contains(WidgetState.selected)
+                ? Colors.white
+                : const Color(0xFF2D1A0E)),
       ),
     );
   }

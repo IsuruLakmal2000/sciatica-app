@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../l10n/education_translations.dart';
+import '../state/app_state.dart';
 
 class EducationArticle {
   final String id;
@@ -18,6 +20,24 @@ class EducationArticle {
     required this.icon,
     this.category = 'general',
   });
+
+  String getTitle(BuildContext context) {
+    final state = AppStateProvider.maybeOf(context);
+    final lang = state?.languageCode ?? 'en';
+    return educationTranslations[lang]?['${id}_title'] ?? title;
+  }
+
+  String getSummary(BuildContext context) {
+    final state = AppStateProvider.maybeOf(context);
+    final lang = state?.languageCode ?? 'en';
+    return educationTranslations[lang]?['${id}_summary'] ?? summary;
+  }
+
+  String getBody(BuildContext context) {
+    final state = AppStateProvider.maybeOf(context);
+    final lang = state?.languageCode ?? 'en';
+    return educationTranslations[lang]?['${id}_body'] ?? body;
+  }
 }
 
 class EducationData {

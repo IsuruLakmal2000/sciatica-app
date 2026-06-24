@@ -411,6 +411,59 @@ class ExerciseData {
     ),
   ];
 
+  /// Generates a customized list of exercises based on pain location, severity, and mobility level
+  static List<Exercise> generateCustomPlan({
+    required String painLocation,
+    required String painSeverity,
+    required String mobilityLevel,
+  }) {
+    final List<Exercise> selected = [];
+
+    for (final ex in allExercises) {
+      // 1. Mobility filters
+      if (mobilityLevel == 'bed' && !ex.bedFriendly) {
+        continue;
+      }
+      
+      // 2. Severity filters
+      if (painSeverity == 'severe' && !ex.flareUpFriendly) {
+        continue;
+      }
+      if (painSeverity == 'moderate' && ex.difficulty == 'advanced') {
+        continue;
+      }
+
+      // 3. Location/Relevance filters
+      bool isRelevant = false;
+      if (painLocation == 'lower_back') {
+        // Core stability, cat-cow, pelvic tilts, and decompression
+        if (ex.category == 'decompress' || 
+            ex.id == 'pelvic_tilts' || 
+            ex.id == 'cat_cow') {
+          isRelevant = true;
+        }
+      } else {
+        // Leg pain: stretches, nerve flossing, bridges
+        if (ex.category == 'stretch' || 
+            ex.id == 'supine_twist' || 
+            ex.id == 'glute_bridge') {
+          isRelevant = true;
+        }
+      }
+
+      if (isRelevant) {
+        selected.add(ex);
+      }
+    }
+
+    // Default safe fallbacks if the filter is too restrictive
+    if (selected.isEmpty) {
+      selected.addAll(allExercises.where((e) => e.flareUpFriendly && e.bedFriendly));
+    }
+
+    return selected;
+  }
+
   /// Returns exercises suitable for a given pain score
   static List<Exercise> getSessionForPainLevel(int painScore) {
     if (painScore >= 8) {

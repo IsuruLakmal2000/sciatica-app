@@ -69,7 +69,7 @@ class XpBar extends StatelessWidget {
                   child: Container(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(height / 2),
-                      gradient: const LinearGradient(
+                      gradient: LinearGradient(
                         colors: [
                           AppColors.warmGoldDark,
                           AppColors.warmGold,

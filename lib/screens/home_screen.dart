@@ -10,6 +10,7 @@ import '../models/pain_entry.dart';
 import 'session_player_screen.dart';
 import 'bedtime_screen.dart';
 import 'custom_session_screen.dart';
+import '../l10n/app_localizations.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -43,7 +44,6 @@ class _HomeScreenState extends State<HomeScreen> {
         child: CustomScrollView(
           slivers: [
             SliverToBoxAdapter(child: _buildHeroCard(state, gam)),
-            SliverToBoxAdapter(child: _buildFlareUpButton(state)),
             SliverToBoxAdapter(child: _buildPainSection(state)),
             SliverToBoxAdapter(child: _buildQuickStats(state, gam)),
             SliverToBoxAdapter(
@@ -74,7 +74,7 @@ class _HomeScreenState extends State<HomeScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            'Custom Session',
+            context.l10n('custom_session'),
             style: TextStyle(
               color: AppColors.textPrimary,
               fontSize: 18,
@@ -84,14 +84,14 @@ class _HomeScreenState extends State<HomeScreen> {
           if (hasExercises)
             GestureDetector(
               onTap: () => _navigateToCustomize(context),
-              child: const Row(
+              child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.edit_rounded, size: 14, color: AppColors.burntOrange),
-                  SizedBox(width: 4),
+                  const Icon(Icons.edit_rounded, size: 14, color: AppColors.burntOrange),
+                  const SizedBox(width: 4),
                   Text(
-                    'Edit',
-                    style: TextStyle(
+                    context.l10n('edit'),
+                    style: const TextStyle(
                       color: AppColors.burntOrange,
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
@@ -132,7 +132,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(height: 16),
             Text(
-              'Build Your Session',
+              context.l10n('build_your_session'),
               style: TextStyle(
                 color: AppColors.textPrimary,
                 fontSize: 16,
@@ -141,7 +141,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(height: 6),
             Text(
-              'Design a custom routine that matches your physical therapy goals and exercises.',
+              context.l10n('design_custom_routine'),
               style: TextStyle(
                 color: AppColors.textSecondary,
                 fontSize: 13,
@@ -161,14 +161,14 @@ class _HomeScreenState extends State<HomeScreen> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: const Row(
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.add_rounded, color: Colors.white, size: 20),
-                    SizedBox(width: 6),
+                    const Icon(Icons.add_rounded, color: Colors.white, size: 20),
+                    const SizedBox(width: 6),
                     Text(
-                      'Create Custom Session',
-                      style: TextStyle(
+                      context.l10n('create_custom_session'),
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
@@ -194,13 +194,13 @@ class _HomeScreenState extends State<HomeScreen> {
     final hour = DateTime.now().hour;
     String greeting;
     if (hour < 12) {
-      greeting = 'Good morning';
+      greeting = context.l10n('good_morning');
     } else if (hour < 17) {
-      greeting = 'Good afternoon';
+      greeting = context.l10n('good_afternoon');
     } else {
-      greeting = 'Good evening';
+      greeting = context.l10n('good_evening');
     }
-    final name = state.profile.name.isNotEmpty ? state.profile.name : 'there';
+    final name = context.l10n('warrior');
 
     return Container(
       margin: const EdgeInsets.fromLTRB(20, 16, 20, 8),
@@ -280,7 +280,7 @@ class _HomeScreenState extends State<HomeScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Lv.${gam.currentLevel} ${gam.levelTitle}',
+                'Lv.${gam.currentLevel} ${gam.getLevelTitle(context)}',
                 style: TextStyle(
                   color: Colors.white.withAlpha(220),
                   fontSize: 12,
@@ -323,98 +323,13 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Day ${gam.currentStreak > 0 ? gam.currentStreak : 1} of your recovery journey',
+            context.l10n('day_streak_progress', [(gam.currentStreak > 0 ? gam.currentStreak : 1).toString()]),
             style: TextStyle(
               color: Colors.white.withAlpha(160),
               fontSize: 12,
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildFlareUpButton(AppState state) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-      child: GestureDetector(
-        onTap: () => state.toggleFlareUpMode(),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 300),
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          decoration: BoxDecoration(
-            color: state.isFlareUpMode
-                ? AppColors.dangerRed.withAlpha(20)
-                : AppColors.darkSurface,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: state.isFlareUpMode
-                  ? AppColors.dangerRed.withAlpha(80)
-                  : AppColors.warmBorder,
-              width: state.isFlareUpMode ? 2 : 1,
-            ),
-          ),
-          child: Row(
-            children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: state.isFlareUpMode
-                      ? AppColors.dangerRed.withAlpha(30)
-                      : AppColors.dangerRed.withAlpha(15),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(
-                  Icons.local_fire_department,
-                  color: state.isFlareUpMode
-                      ? AppColors.dangerRed
-                      : AppColors.dangerRedLight,
-                  size: 22,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      state.isFlareUpMode
-                          ? 'Flare-Up Mode Active'
-                          : 'Flare-Up Mode',
-                      style: TextStyle(
-                        color: state.isFlareUpMode
-                            ? AppColors.dangerRed
-                            : AppColors.textPrimary,
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      state.isFlareUpMode
-                          ? 'Showing gentle, bed-friendly exercises only'
-                          : 'Tap to switch to gentle exercises only',
-                      style: TextStyle(
-                        color: AppColors.textMuted,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Icon(
-                state.isFlareUpMode
-                    ? Icons.toggle_on
-                    : Icons.toggle_off_outlined,
-                color: state.isFlareUpMode
-                    ? AppColors.dangerRed
-                    : AppColors.textMuted,
-                size: 32,
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }
@@ -435,7 +350,7 @@ class _HomeScreenState extends State<HomeScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'How\'s your pain today?',
+                context.l10n('hows_pain_today'),
                 style: TextStyle(
                   color: AppColors.textPrimary,
                   fontSize: 16,
@@ -459,7 +374,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        'Improving',
+                        context.l10n('improving'),
                         style: TextStyle(
                           color: AppColors.forestGreen,
                           fontSize: 11,
@@ -489,11 +404,11 @@ class _HomeScreenState extends State<HomeScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'No pain',
+                context.l10n('no_pain'),
                 style: TextStyle(color: AppColors.textMuted, fontSize: 11),
               ),
               Text(
-                'Worst pain',
+                context.l10n('worst_pain'),
                 style: TextStyle(color: AppColors.textMuted, fontSize: 11),
               ),
             ],
@@ -511,17 +426,17 @@ class _HomeScreenState extends State<HomeScreen> {
           Expanded(
             child: StatCard(
               icon: Icons.local_fire_department,
-              label: 'Streak',
+              label: context.l10n('streak'),
               value: '${gam.currentStreak}',
               color: AppColors.burntOrange,
-              subtitle: 'days',
+              subtitle: context.l10n('days'),
             ),
           ),
           const SizedBox(width: 10),
           Expanded(
             child: StatCard(
               icon: Icons.star_rounded,
-              label: 'Total XP',
+              label: context.l10n('total_xp'),
               value: '${gam.totalXP}',
               color: AppColors.warmGold,
             ),
@@ -530,10 +445,10 @@ class _HomeScreenState extends State<HomeScreen> {
           Expanded(
             child: StatCard(
               icon: Icons.check_circle_outline,
-              label: 'Today',
+              label: context.l10n('today_capitalized'),
               value: '${state.todaysCompletedExercises.length}',
               color: AppColors.forestGreen,
-              subtitle: 'done',
+              subtitle: context.l10n('done'),
             ),
           ),
         ],
@@ -556,18 +471,18 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Column(
             children: [
               Icon(Icons.check_circle, color: AppColors.forestGreen, size: 48),
-              SizedBox(height: 12),
+              const SizedBox(height: 12),
               Text(
-                'All done for today!',
+                context.l10n('all_done_today'),
                 style: TextStyle(
                   color: AppColors.textPrimary,
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
                 ),
               ),
-              SizedBox(height: 4),
+              const SizedBox(height: 4),
               Text(
-                'Great job! Come back tomorrow.',
+                context.l10n('great_job_tomorrow'),
                 style: TextStyle(
                   color: AppColors.textSecondary,
                   fontSize: 13,
@@ -587,9 +502,9 @@ class _HomeScreenState extends State<HomeScreen> {
           return Padding(
             padding: const EdgeInsets.only(bottom: 8),
             child: ExerciseCard(
-              title: exercise.name,
-              duration: exercise.durationDisplay,
-              category: exercise.categoryDisplay,
+              title: exercise.getName(context),
+              duration: exercise.getDurationDisplay(context),
+              category: exercise.getCategoryDisplay(context),
               xpReward: exercise.xpReward,
               icon: exercise.icon,
               isCompleted: isCompleted,
@@ -635,14 +550,14 @@ class _HomeScreenState extends State<HomeScreen> {
               borderRadius: BorderRadius.circular(16),
             ),
           ),
-          child: const Row(
+          child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.play_arrow_rounded, size: 28, color: Colors.white),
-              SizedBox(width: 8),
+              const Icon(Icons.play_arrow_rounded, size: 28, color: Colors.white),
+              const SizedBox(width: 8),
               Text(
-                'Start Full Session',
-                style: TextStyle(
+                context.l10n('start_full_session'),
+                style: const TextStyle(
                   fontSize: 17,
                   fontWeight: FontWeight.w700,
                   color: Colors.white,
@@ -667,14 +582,26 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            gradient: LinearGradient(
+            gradient: const LinearGradient(
               colors: [
-                AppColors.darkSurface,
-                const Color(0xFF1A1520),
+                Color(0xFF251A35), // Deep night purple
+                Color(0xFF14101E), // Very dark night purple
               ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
             ),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.warmBorder),
+            border: Border.all(
+              color: const Color(0xFF3D2D5A), // Subtle dark purple border
+              width: 1,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF251A35).withAlpha(40),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
           child: Row(
             children: [
@@ -697,27 +624,27 @@ class _HomeScreenState extends State<HomeScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Bedtime Wind-Down',
-                      style: TextStyle(
-                        color: AppColors.textPrimary,
+                      context.l10n('bedtime_wind_down'),
+                      style: const TextStyle(
+                        color: Colors.white,
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                    SizedBox(height: 2),
+                    const SizedBox(height: 2),
                     Text(
-                      '5-min routine to decompress before sleep',
-                      style: TextStyle(
-                        color: AppColors.textMuted,
+                      context.l10n('bedtime_wind_down_desc'),
+                      style: const TextStyle(
+                        color: Colors.white70,
                         fontSize: 12,
                       ),
                     ),
                   ],
                 ),
               ),
-              Icon(
+              const Icon(
                 Icons.chevron_right,
-                color: AppColors.textMuted,
+                color: Color(0xFFB4A0E8),
               ),
             ],
           ),

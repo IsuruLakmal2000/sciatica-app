@@ -4,6 +4,7 @@ import '../state/app_state.dart';
 import '../models/pain_entry.dart';
 import '../widgets/pain_score_selector.dart';
 import '../widgets/contribution_chart.dart';
+import '../l10n/app_localizations.dart';
 
 class PainDiaryScreen extends StatefulWidget {
   const PainDiaryScreen({super.key});
@@ -13,6 +14,9 @@ class PainDiaryScreen extends StatefulWidget {
 }
 
 class _PainDiaryScreenState extends State<PainDiaryScreen> {
+  final Set<String> _expandedMonths = {};
+  bool _hasInitializedExpandedMonths = false;
+
   @override
   Widget build(BuildContext context) {
     final state = AppStateProvider.of(context);
@@ -32,18 +36,13 @@ class _PainDiaryScreenState extends State<PainDiaryScreen> {
               ),
             ),
             SliverToBoxAdapter(child: _buildTrendGraph(state)),
-            SliverToBoxAdapter(child: _buildSectionTitle('History')),
-            SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (context, index) {
-                  if (index >= state.painEntries.length) return null;
-                  return _buildHistoryItem(state.painEntries[index]);
-                },
-                childCount: state.painEntries.length,
-              ),
-            ),
+            SliverToBoxAdapter(child: _buildSectionTitle(context.l10n('history'))),
             if (state.painEntries.isEmpty)
-              SliverToBoxAdapter(child: _buildEmptyState()),
+              SliverToBoxAdapter(child: _buildEmptyState())
+            else
+              SliverToBoxAdapter(
+                child: _buildGroupedHistory(state),
+              ),
             const SliverPadding(padding: EdgeInsets.only(bottom: 100)),
           ],
         ),
@@ -58,21 +57,21 @@ class _PainDiaryScreenState extends State<PainDiaryScreen> {
 
   Widget _buildHeader() {
     return Padding(
-      padding: EdgeInsets.fromLTRB(20, 16, 20, 8),
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Pain Diary',
+            context.l10n('pain_diary'),
             style: TextStyle(
               color: AppColors.textPrimary,
               fontSize: 26,
               fontWeight: FontWeight.w800,
             ),
           ),
-          SizedBox(height: 4),
+          const SizedBox(height: 4),
           Text(
-            'Track your pain to see progress over time',
+            context.l10n('pain_diary_sub'),
             style: TextStyle(
               color: AppColors.textSecondary,
               fontSize: 14,
@@ -101,7 +100,7 @@ class _PainDiaryScreenState extends State<PainDiaryScreen> {
         children: [
           Expanded(
             child: _buildInsightCard(
-              'Weekly Average',
+              context.l10n('weekly_avg'),
               avgWeek.toStringAsFixed(1),
               AppColors.burntOrange,
               Icons.analytics_outlined,
@@ -110,7 +109,7 @@ class _PainDiaryScreenState extends State<PainDiaryScreen> {
           const SizedBox(width: 10),
           Expanded(
             child: _buildInsightCard(
-              'Entries',
+              context.l10n('entries'),
               '${entries.length}',
               AppColors.warmGold,
               Icons.edit_note,
@@ -119,7 +118,7 @@ class _PainDiaryScreenState extends State<PainDiaryScreen> {
           const SizedBox(width: 10),
           Expanded(
             child: _buildInsightCard(
-              'Trend',
+              context.l10n('trend'),
               state.painTrend > 0
                   ? '↓ ${state.painTrend.toStringAsFixed(1)}'
                   : state.painTrend < 0
@@ -196,7 +195,7 @@ class _PainDiaryScreenState extends State<PainDiaryScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Pain Trend',
+            context.l10n('trend'),
             style: TextStyle(
               color: AppColors.textPrimary,
               fontSize: 16,
@@ -246,53 +245,281 @@ class _PainDiaryScreenState extends State<PainDiaryScreen> {
     );
   }
 
-  Widget _buildHistoryItem(PainEntry entry) {
-    final color = AppColors.painScoreColor(entry.painScore);
+  Map<String, List<PainEntry>> get _groupedPainEntries {
+    final Map<String, List<PainEntry>> groups = {};
+    final state = AppStateProvider.of(context);
+    final months = [
+      context.l10n('mon_jan'),
+      context.l10n('mon_feb'),
+      context.l10n('mon_mar'),
+      context.l10n('mon_apr'),
+      context.l10n('mon_may'),
+      context.l10n('mon_jun'),
+      context.l10n('mon_jul'),
+      context.l10n('mon_aug'),
+      context.l10n('mon_sep'),
+      context.l10n('mon_oct'),
+      context.l10n('mon_nov'),
+      context.l10n('mon_dec'),
+    ];
+
+    for (final entry in state.painEntries) {
+      final key = '${months[entry.date.month - 1]} ${entry.date.year}';
+      if (!groups.containsKey(key)) {
+        groups[key] = [];
+      }
+      groups[key]!.add(entry);
+    }
+    return groups;
+  }
+
+  Widget _buildGroupedHistory(AppState state) {
+    final grouped = _groupedPainEntries;
+    if (grouped.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    // Expand the most recent month by default once
+    if (!_hasInitializedExpandedMonths && grouped.isNotEmpty) {
+      _expandedMonths.add(grouped.keys.first);
+      _hasInitializedExpandedMonths = true;
+    }
+
+    return Column(
+      children: grouped.entries.map((entry) {
+        final monthKey = entry.key;
+        final list = entry.value;
+
+        // Calculate stats for this month
+        final count = list.length;
+        final avgPain = list.fold(0.0, (sum, e) => sum + e.painScore) / count;
+        
+        // Find most common trigger in this month
+        final triggerCounts = <String, int>{};
+        for (final item in list) {
+          for (final trigger in item.triggers) {
+            triggerCounts[trigger] = (triggerCounts[trigger] ?? 0) + 1;
+          }
+        }
+        String topTrigger = '';
+        int maxCount = 0;
+        triggerCounts.forEach((trigger, count) {
+          if (count > maxCount) {
+            maxCount = count;
+            topTrigger = trigger;
+          }
+        });
+
+        return _buildMonthlyExpansionCard(monthKey, list, avgPain, count, topTrigger);
+      }).toList(),
+    );
+  }
+
+  Widget _buildMonthlyExpansionCard(
+    String monthKey,
+    List<PainEntry> entries,
+    double avgPain,
+    int count,
+    String topTrigger,
+  ) {
+    final isExpanded = _expandedMonths.contains(monthKey);
+    final avgPainColor = AppColors.painScoreColor(avgPain.round());
+
     return Container(
-      margin: const EdgeInsets.fromLTRB(20, 0, 20, 8),
-      padding: const EdgeInsets.all(14),
+      margin: const EdgeInsets.fromLTRB(20, 0, 20, 12),
       decoration: BoxDecoration(
         color: AppColors.darkSurface,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.warmBorder),
       ),
-      child: Row(
+      child: Column(
         children: [
+          // Header Row
+          InkWell(
+            onTap: () {
+              setState(() {
+                if (isExpanded) {
+                  _expandedMonths.remove(monthKey);
+                } else {
+                  _expandedMonths.add(monthKey);
+                }
+              });
+            },
+            borderRadius: BorderRadius.circular(16),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  // Month Info
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          monthKey,
+                          style: TextStyle(
+                            color: AppColors.textPrimary,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Row(
+                          children: [
+                            Text(
+                              '$count ${context.l10n('logs')}',
+                              style: TextStyle(
+                                color: AppColors.textSecondary,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            if (topTrigger.isNotEmpty) ...[
+                              const SizedBox(width: 8),
+                              Container(
+                                width: 3,
+                                height: 3,
+                                decoration: BoxDecoration(
+                                  color: AppColors.textMuted,
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Flexible(
+                                child: Text(
+                                  '${context.l10n('trigger')}: ${_getLocalizedTrigger(context, topTrigger)}',
+                                  style: TextStyle(
+                                    color: AppColors.textSecondary,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  // Monthly Average Pain Score
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: avgPainColor.withAlpha(15),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: avgPainColor.withAlpha(40)),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          '${context.l10n('avg')}: ',
+                          style: TextStyle(
+                            color: AppColors.textMuted,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        Text(
+                          avgPain.toStringAsFixed(1),
+                          style: TextStyle(
+                            color: avgPainColor,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Icon(
+                    isExpanded ? Icons.expand_less_rounded : Icons.expand_more_rounded,
+                    color: AppColors.textSecondary,
+                    size: 20,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          // Expanded Items List
+          if (isExpanded) ...[
+            Divider(height: 1, color: AppColors.warmBorder),
+            const SizedBox(height: 8),
+            ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: entries.length,
+              itemBuilder: (context, index) {
+                return _buildSubHistoryItem(entries[index]);
+              },
+            ),
+            const SizedBox(height: 8),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSubHistoryItem(PainEntry entry) {
+    final color = AppColors.painScoreColor(entry.painScore);
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Small round badge for pain score
           Container(
-            width: 44,
-            height: 44,
+            width: 36,
+            height: 36,
             decoration: BoxDecoration(
               color: color.withAlpha(20),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: color.withAlpha(40)),
             ),
             child: Center(
               child: Text(
                 '${entry.painScore}',
                 style: TextStyle(
                   color: color,
-                  fontSize: 20,
+                  fontSize: 16,
                   fontWeight: FontWeight.w800,
                 ),
               ),
             ),
           ),
-          const SizedBox(width: 14),
+          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  _formatDateFull(entry.date),
-                  style: TextStyle(
-                    color: AppColors.textPrimary,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      _formatDateFull(entry.date),
+                      style: TextStyle(
+                        color: AppColors.textPrimary,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    if (entry.painLocation.isNotEmpty)
+                      Text(
+                        _formatOption(context, entry.painLocation),
+                        style: TextStyle(
+                          color: AppColors.textMuted,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                  ],
                 ),
                 if (entry.triggers.isNotEmpty) ...[
                   const SizedBox(height: 4),
                   Wrap(
                     spacing: 4,
+                    runSpacing: 4,
                     children: entry.triggers.map((t) {
                       return Container(
                         padding: const EdgeInsets.symmetric(
@@ -302,10 +529,10 @@ class _PainDiaryScreenState extends State<PainDiaryScreen> {
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
-                          t,
+                          _getLocalizedTrigger(context, t),
                           style: TextStyle(
                             color: AppColors.textMuted,
-                            fontSize: 10,
+                            fontSize: 9,
                           ),
                         ),
                       );
@@ -319,6 +546,7 @@ class _PainDiaryScreenState extends State<PainDiaryScreen> {
                     style: TextStyle(
                       color: AppColors.textSecondary,
                       fontSize: 12,
+                      height: 1.35,
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
@@ -332,6 +560,19 @@ class _PainDiaryScreenState extends State<PainDiaryScreen> {
     );
   }
 
+  String _formatOption(BuildContext context, String value) {
+    if (value.isEmpty) return '';
+    final key = 'loc_$value';
+    final translated = context.l10n(key);
+    if (translated != key) return translated;
+    return value
+        .replaceAll('_', ' ')
+        .split(' ')
+        .map(
+            (w) => w.isNotEmpty ? '${w[0].toUpperCase()}${w.substring(1)}' : '')
+        .join(' ');
+  }
+
   Widget _buildEmptyState() {
     return Padding(
       padding: const EdgeInsets.all(40),
@@ -340,7 +581,7 @@ class _PainDiaryScreenState extends State<PainDiaryScreen> {
           Icon(Icons.edit_note, color: AppColors.textMuted, size: 48),
           const SizedBox(height: 12),
           Text(
-            'No entries yet',
+            context.l10n('no_entries'),
             style: TextStyle(
               color: AppColors.textSecondary,
               fontSize: 16,
@@ -349,7 +590,7 @@ class _PainDiaryScreenState extends State<PainDiaryScreen> {
           ),
           const SizedBox(height: 4),
           Text(
-            'Tap + to log your first pain entry',
+            context.l10n('no_entries_sub'),
             style: TextStyle(color: AppColors.textMuted, fontSize: 13),
           ),
         ],
@@ -389,7 +630,7 @@ class _PainDiaryScreenState extends State<PainDiaryScreen> {
               ),
               const SizedBox(height: 20),
               Text(
-                'Log Pain',
+                context.l10n('log_pain'),
                 style: TextStyle(
                   color: AppColors.textPrimary,
                   fontSize: 22,
@@ -398,7 +639,7 @@ class _PainDiaryScreenState extends State<PainDiaryScreen> {
               ),
               const SizedBox(height: 20),
               Text(
-                'Pain Score',
+                context.l10n('pain_score'),
                 style: TextStyle(
                   color: AppColors.textPrimary,
                   fontSize: 15,
@@ -412,7 +653,7 @@ class _PainDiaryScreenState extends State<PainDiaryScreen> {
               ),
               const SizedBox(height: 20),
               Text(
-                'What triggered it?',
+                context.l10n('what_triggered'),
                 style: TextStyle(
                   color: AppColors.textPrimary,
                   fontSize: 15,
@@ -450,7 +691,7 @@ class _PainDiaryScreenState extends State<PainDiaryScreen> {
                         ),
                       ),
                       child: Text(
-                        trigger,
+                        _getLocalizedTrigger(context, trigger),
                         style: TextStyle(
                           color: isSelected
                               ? AppColors.burntOrange
@@ -465,7 +706,7 @@ class _PainDiaryScreenState extends State<PainDiaryScreen> {
               ),
               const SizedBox(height: 20),
               Text(
-                'Notes (optional)',
+                context.l10n('notes_optional'),
                 style: TextStyle(
                   color: AppColors.textPrimary,
                   fontSize: 15,
@@ -478,8 +719,8 @@ class _PainDiaryScreenState extends State<PainDiaryScreen> {
                 maxLines: 3,
                 style: TextStyle(
                     color: AppColors.textPrimary, fontSize: 14),
-                decoration: const InputDecoration(
-                  hintText: 'Any additional details...',
+                decoration: InputDecoration(
+                  hintText: context.l10n('notes_hint'),
                 ),
               ),
               const SizedBox(height: 24),
@@ -497,8 +738,10 @@ class _PainDiaryScreenState extends State<PainDiaryScreen> {
                     ));
                     Navigator.of(ctx).pop();
                   },
-                  child: const Text('Save Entry',
-                      style: TextStyle(color: Colors.white)),
+                  child: Text(
+                    context.l10n('save_entry'),
+                    style: const TextStyle(color: Colors.white),
+                  ),
                 ),
               ),
             ],
@@ -510,30 +753,59 @@ class _PainDiaryScreenState extends State<PainDiaryScreen> {
 
   String _formatDate(DateTime date) {
     final months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+      context.l10n('mon_jan'),
+      context.l10n('mon_feb'),
+      context.l10n('mon_mar'),
+      context.l10n('mon_apr'),
+      context.l10n('mon_may'),
+      context.l10n('mon_jun'),
+      context.l10n('mon_jul'),
+      context.l10n('mon_aug'),
+      context.l10n('mon_sep'),
+      context.l10n('mon_oct'),
+      context.l10n('mon_nov'),
+      context.l10n('mon_dec'),
     ];
-    return '${months[date.month - 1]} ${date.day}';
+    final m = months[date.month - 1];
+    final shortMonth = m.length > 3 ? m.substring(0, 3) : m;
+    return '$shortMonth ${date.day}';
   }
 
   String _formatDateFull(DateTime date) {
     final months = [
-      'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December'
+      context.l10n('mon_jan'),
+      context.l10n('mon_feb'),
+      context.l10n('mon_mar'),
+      context.l10n('mon_apr'),
+      context.l10n('mon_may'),
+      context.l10n('mon_jun'),
+      context.l10n('mon_jul'),
+      context.l10n('mon_aug'),
+      context.l10n('mon_sep'),
+      context.l10n('mon_oct'),
+      context.l10n('mon_nov'),
+      context.l10n('mon_dec'),
     ];
     final now = DateTime.now();
     if (date.year == now.year &&
         date.month == now.month &&
         date.day == now.day) {
-      return 'Today';
+      return context.l10n('today_capitalized');
     }
     final yesterday = now.subtract(const Duration(days: 1));
     if (date.year == yesterday.year &&
         date.month == yesterday.month &&
         date.day == yesterday.day) {
-      return 'Yesterday';
+      return context.l10n('yesterday');
     }
     return '${months[date.month - 1]} ${date.day}, ${date.year}';
+  }
+
+  String _getLocalizedTrigger(BuildContext context, String trigger) {
+    final key = 'trigger_${trigger.toLowerCase().replaceAll(' ', '_')}';
+    final translated = context.l10n(key);
+    if (translated != key) return translated;
+    return trigger;
   }
 }
 

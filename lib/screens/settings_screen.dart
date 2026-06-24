@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../state/app_state.dart';
+import 'legal_document_screen.dart';
+import 'paywall_screen.dart';
+import '../l10n/app_localizations.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -23,13 +26,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
             children: [
               _buildHeader(),
               _buildProfileCard(state),
-              _buildSectionTitle('PREFERENCES'),
+              _buildSectionTitle(context.l10n('preferences')),
               _buildPreferencesSection(state),
-              _buildSectionTitle('NOTIFICATIONS'),
+              _buildSectionTitle(context.l10n('notifications')),
               _buildNotificationsSection(state),
-              _buildSectionTitle('PAIN PROFILE'),
+              _buildSectionTitle(context.l10n('pain_profile')),
               _buildPainProfileSection(state),
-              _buildSectionTitle('ABOUT'),
+              _buildSectionTitle(context.l10n('about')),
               _buildAboutSection(),
               const SizedBox(height: 100),
             ],
@@ -41,14 +44,32 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Widget _buildHeader() {
     return Padding(
-      padding: EdgeInsets.fromLTRB(20, 16, 20, 8),
-      child: Text(
-        'Settings',
-        style: TextStyle(
-          color: AppColors.textPrimary,
-          fontSize: 26,
-          fontWeight: FontWeight.w800,
-        ),
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            context.l10n('settings'),
+            style: TextStyle(
+              color: AppColors.textPrimary,
+              fontSize: 26,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          GestureDetector(
+            onTap: () => Navigator.of(context).pop(),
+            child: Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: AppColors.darkSurface,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppColors.warmBorder),
+              ),
+              child: Icon(Icons.close, color: AppColors.textSecondary, size: 20),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -69,16 +90,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
               shape: BoxShape.circle,
             ),
-            child: Center(
-              child: Text(
-                state.profile.name.isNotEmpty
-                    ? state.profile.name[0].toUpperCase()
-                    : '?',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 22,
-                  fontWeight: FontWeight.w800,
-                ),
+            child: const Center(
+              child: Icon(
+                Icons.person_rounded,
+                color: Colors.white,
+                size: 26,
               ),
             ),
           ),
@@ -88,9 +104,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  state.profile.name.isNotEmpty
-                      ? state.profile.name
-                      : 'User',
+                  context.l10n('hi_there'),
                   style: TextStyle(
                     color: AppColors.textPrimary,
                     fontSize: 16,
@@ -99,7 +113,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'Level ${state.gamification.currentLevel} — ${state.gamification.levelTitle}',
+                  '${context.l10n('level')} ${state.gamification.currentLevel} — ${state.gamification.getLevelTitle(context)}',
                   style: TextStyle(
                     color: AppColors.textSecondary,
                     fontSize: 13,
@@ -129,6 +143,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Widget _buildPreferencesSection(AppState state) {
+    final langMap = {
+      'en': 'English',
+      'es': 'Español',
+      'fr': 'Français',
+      'de': 'Deutsch',
+      'it': 'Italiano',
+    };
+    final currentLang = langMap[state.languageCode] ?? 'English';
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
       decoration: _cardDecoration(),
@@ -137,18 +160,39 @@ class _SettingsScreenState extends State<SettingsScreen> {
           _buildSwitchTile(
             icon: Icons.dark_mode,
             iconColor: const Color(0xFFB4A0E8),
-            title: 'Dark Mode',
-            subtitle: 'Use dark theme (recommended)',
+            title: context.l10n('dark_mode'),
+            subtitle: context.l10n('dark_mode_sub'),
             value: state.profile.darkMode,
             onChanged: (val) => state.setDarkMode(val),
+          ),
+          _buildDivider(),
+          _buildSwitchTile(
+            icon: Icons.star_rounded,
+            iconColor: AppColors.warmGold,
+            title: 'Premium Member',
+            subtitle: 'Disable all advertisements',
+            value: state.profile.isPremium,
+            onChanged: (val) => state.setPremiumStatus(val),
           ),
           _buildDivider(),
           _buildNavigationTile(
             icon: Icons.language,
             iconColor: AppColors.burntOrange,
-            title: 'Language',
-            subtitle: 'English',
-            onTap: () {},
+            title: context.l10n('language'),
+            subtitle: currentLang,
+            onTap: () => _showLanguageSelector(context, state),
+          ),
+          _buildDivider(),
+          _buildNavigationTile(
+            icon: Icons.workspace_premium_rounded,
+            iconColor: AppColors.warmGold,
+            title: state.profile.isPremium ? 'Premium Active' : 'Upgrade to Premium',
+            subtitle: state.profile.isPremium ? 'Lifetime membership active' : 'Unlock ads removal & bedtime stretches',
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const PaywallScreen()),
+              );
+            },
           ),
         ],
       ),
@@ -164,8 +208,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
           _buildSwitchTile(
             icon: Icons.notifications_active,
             iconColor: AppColors.burntOrange,
-            title: 'Push Notifications',
-            subtitle: 'Receive daily reminders',
+            title: context.l10n('push_notifications'),
+            subtitle: context.l10n('push_notifications_sub'),
             value: state.profile.notificationsEnabled,
             onChanged: (val) {
               state.profile.notificationsEnabled = val;
@@ -176,7 +220,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           _buildNavigationTile(
             icon: Icons.schedule,
             iconColor: AppColors.warmGold,
-            title: 'Reminder Time',
+            title: context.l10n('reminder_time'),
             subtitle: state.profile.reminderTime,
             onTap: () => _pickTime(state),
           ),
@@ -194,22 +238,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
           _buildInfoTile(
             icon: Icons.location_on,
             iconColor: AppColors.dangerRedLight,
-            title: 'Pain Location',
-            value: _formatOption(state.profile.painLocation),
+            title: context.l10n('pain_location'),
+            value: context.l10n('loc_${state.profile.painLocation}'),
           ),
           _buildDivider(),
           _buildInfoTile(
             icon: Icons.speed,
             iconColor: AppColors.warmGold,
-            title: 'Severity',
-            value: _formatOption(state.profile.painSeverity),
+            title: context.l10n('severity'),
+            value: context.l10n('sev_${state.profile.painSeverity}'),
           ),
           _buildDivider(),
           _buildInfoTile(
             icon: Icons.accessibility_new,
             iconColor: AppColors.forestGreen,
-            title: 'Mobility Level',
-            value: _formatOption(state.profile.mobilityLevel),
+            title: context.l10n('mobility_level'),
+            value: context.l10n('mob_${state.profile.mobilityLevel}'),
           ),
         ],
       ),
@@ -225,7 +269,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           _buildNavigationTile(
             icon: Icons.info_outline,
             iconColor: AppColors.burntOrange,
-            title: 'App Version',
+            title: context.l10n('app_version'),
             subtitle: '1.0.0',
             onTap: () {},
           ),
@@ -233,23 +277,55 @@ class _SettingsScreenState extends State<SettingsScreen> {
           _buildNavigationTile(
             icon: Icons.article_outlined,
             iconColor: AppColors.warmGold,
-            title: 'Terms of Service',
+            title: context.l10n('terms_of_service'),
             subtitle: '',
-            onTap: () {},
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => const LegalDocumentScreen(
+                    docType: LegalDocType.termsOfUse,
+                  ),
+                ),
+              );
+            },
           ),
           _buildDivider(),
           _buildNavigationTile(
             icon: Icons.privacy_tip_outlined,
             iconColor: const Color(0xFFB4A0E8),
-            title: 'Privacy Policy',
+            title: context.l10n('privacy_policy'),
             subtitle: '',
-            onTap: () {},
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => const LegalDocumentScreen(
+                    docType: LegalDocType.privacyPolicy,
+                  ),
+                ),
+              );
+            },
+          ),
+          _buildDivider(),
+          _buildNavigationTile(
+            icon: Icons.health_and_safety_outlined,
+            iconColor: AppColors.dangerRedLight,
+            title: context.l10n('medical_disclaimer'),
+            subtitle: '',
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => const LegalDocumentScreen(
+                    docType: LegalDocType.medicalDisclaimer,
+                  ),
+                ),
+              );
+            },
           ),
           _buildDivider(),
           _buildNavigationTile(
             icon: Icons.help_outline,
             iconColor: AppColors.forestGreen,
-            title: 'Help & Support',
+            title: context.l10n('help_support'),
             subtitle: '',
             onTap: () {},
           ),
@@ -437,21 +513,79 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final time = await showTimePicker(
       context: context,
       initialTime: TimeOfDay.now(),
-      builder: (context, child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: ColorScheme.dark(
-              primary: AppColors.burntOrange,
-              surface: AppColors.darkSurface,
-            ),
-          ),
-          child: child!,
-        );
-      },
     );
     if (time != null && mounted) {
       state.profile.reminderTime = time.format(context);
       state.saveProfile(state.profile);
     }
+  }
+
+  void _showLanguageSelector(BuildContext context, AppState state) {
+    final Map<String, String> languages = {
+      'en': 'English',
+      'es': 'Español',
+      'fr': 'Français',
+      'de': 'Deutsch',
+      'it': 'Italiano',
+    };
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        decoration: BoxDecoration(
+          color: AppColors.darkSurface,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 12),
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: AppColors.warmBorder,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              context.l10n('language'),
+              style: TextStyle(
+                color: AppColors.textPrimary,
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: 12),
+            ...languages.entries.map((entry) {
+              final isSelected = state.languageCode == entry.key;
+              return ListTile(
+                onTap: () {
+                  state.setLanguage(entry.key);
+                  Navigator.of(ctx).pop();
+                },
+                leading: Icon(
+                  Icons.check_circle_rounded,
+                  color: isSelected ? AppColors.burntOrange : Colors.transparent,
+                  size: 20,
+                ),
+                title: Text(
+                  entry.value,
+                  style: TextStyle(
+                    color: isSelected ? AppColors.burntOrange : AppColors.textPrimary,
+                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                  ),
+                ),
+              );
+            }).toList(),
+            const SizedBox(height: 32),
+          ],
+        ),
+      ),
+    );
   }
 }

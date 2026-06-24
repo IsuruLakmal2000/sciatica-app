@@ -5,14 +5,14 @@ import '../theme/app_theme.dart';
 class CountdownTimer extends StatefulWidget {
   final int totalSeconds;
   final VoidCallback? onComplete;
-  final bool autoStart;
+  final bool isPaused;
   final Color? color;
 
   const CountdownTimer({
     super.key,
     required this.totalSeconds,
     this.onComplete,
-    this.autoStart = true,
+    this.isPaused = false,
     this.color,
   });
 
@@ -23,7 +23,6 @@ class CountdownTimer extends StatefulWidget {
 class CountdownTimerState extends State<CountdownTimer>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
-  bool _isPaused = false;
 
   @override
   void initState() {
@@ -39,8 +38,20 @@ class CountdownTimerState extends State<CountdownTimer>
       }
     });
 
-    if (widget.autoStart) {
+    if (!widget.isPaused) {
       _controller.forward();
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant CountdownTimer oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.isPaused != oldWidget.isPaused) {
+      if (widget.isPaused) {
+        _controller.stop();
+      } else {
+        _controller.forward();
+      }
     }
   }
 
@@ -49,28 +60,6 @@ class CountdownTimerState extends State<CountdownTimer>
     _controller.dispose();
     super.dispose();
   }
-
-  void pause() {
-    _controller.stop();
-    setState(() => _isPaused = true);
-  }
-
-  void resume() {
-    _controller.forward();
-    setState(() => _isPaused = false);
-  }
-
-  void reset() {
-    _controller.reset();
-    setState(() => _isPaused = false);
-  }
-
-  void start() {
-    _controller.forward();
-    setState(() => _isPaused = false);
-  }
-
-  bool get isPaused => _isPaused;
 
   @override
   Widget build(BuildContext context) {
@@ -118,9 +107,9 @@ class CountdownTimerState extends State<CountdownTimer>
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    _isPaused ? 'PAUSED' : 'REMAINING',
+                    widget.isPaused ? 'PAUSED' : 'REMAINING',
                     style: TextStyle(
-                      color: _isPaused ? color : AppColors.textSecondary,
+                      color: widget.isPaused ? color : AppColors.textSecondary,
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
                       letterSpacing: 1.5,

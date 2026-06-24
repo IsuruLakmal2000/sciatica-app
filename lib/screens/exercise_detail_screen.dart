@@ -4,6 +4,7 @@ import '../models/exercise.dart';
 import 'session_player_screen.dart';
 import '../widgets/exercise_animation_player.dart';
 import '../state/app_state.dart';
+import '../l10n/app_localizations.dart';
 
 class ExerciseDetailScreen extends StatelessWidget {
   final Exercise exercise;
@@ -27,7 +28,7 @@ class ExerciseDetailScreen extends StatelessWidget {
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
-          'Exercise Details',
+          context.l10n('exercise_details'),
           style: TextStyle(
             color: AppColors.textPrimary,
             fontSize: 16,
@@ -37,7 +38,7 @@ class ExerciseDetailScreen extends StatelessWidget {
         actions: [
           Container(
             margin: const EdgeInsets.only(right: 16, top: 12, bottom: 12),
-            child: _buildOverlayBadge(exercise.categoryDisplay, AppColors.burntOrange),
+            child: _buildOverlayBadge(exercise.getCategoryDisplay(context), AppColors.burntOrange),
           ),
         ],
       ),
@@ -45,12 +46,12 @@ class ExerciseDetailScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildImagePlaceholder(exercise),
-            _buildTitleSection(exercise),
-            _buildMetaGrid(exercise),
-            _buildInstructionsSection(exercise),
-            _buildCommonMistakesSection(exercise),
-            _buildModificationsSection(exercise),
+            _buildImagePlaceholder(context, exercise),
+            _buildTitleSection(context, exercise),
+            _buildMetaGrid(context, exercise),
+            _buildInstructionsSection(context, exercise),
+            _buildCommonMistakesSection(context, exercise),
+            _buildModificationsSection(context, exercise),
             const SizedBox(height: 32),
           ],
         ),
@@ -59,7 +60,7 @@ class ExerciseDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildImagePlaceholder(Exercise exercise) {
+  Widget _buildImagePlaceholder(BuildContext context, Exercise exercise) {
     if (exercise.imageAssets.isNotEmpty) {
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
@@ -75,10 +76,10 @@ class ExerciseDetailScreen extends StatelessWidget {
               child: Row(
                 children: [
                   if (exercise.flareUpFriendly)
-                    _buildOverlayBadge('Flare-up Safe', AppColors.forestGreen),
+                    _buildOverlayBadge(context.l10n('flare_up_safe'), AppColors.forestGreen),
                   if (exercise.bedFriendly) ...[
                     const SizedBox(width: 6),
-                    _buildOverlayBadge('Bed-friendly', const Color(0xFFB4A0E8)),
+                    _buildOverlayBadge(context.l10n('bed_friendly'), const Color(0xFFB4A0E8)),
                   ],
                 ],
               ),
@@ -172,7 +173,7 @@ class ExerciseDetailScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Text(
-                    'EXERCISE DEMONSTRATION',
+                    context.l10n('exercise_demonstration'),
                     style: TextStyle(
                       color: AppColors.textSecondary,
                       fontSize: 10,
@@ -191,10 +192,10 @@ class ExerciseDetailScreen extends StatelessWidget {
             child: Row(
               children: [
                 if (exercise.flareUpFriendly)
-                  _buildOverlayBadge('Flare-up Safe', AppColors.forestGreen),
+                  _buildOverlayBadge(context.l10n('flare_up_safe'), AppColors.forestGreen),
                 if (exercise.bedFriendly) ...[
                   const SizedBox(width: 6),
-                  _buildOverlayBadge('Bed-friendly', const Color(0xFFB4A0E8)),
+                  _buildOverlayBadge(context.l10n('bed_friendly'), const Color(0xFFB4A0E8)),
                 ],
               ],
             ),
@@ -231,7 +232,7 @@ class ExerciseDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildTitleSection(Exercise exercise) {
+  Widget _buildTitleSection(BuildContext context, Exercise exercise) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(24, 16, 24, 12),
       child: Column(
@@ -241,7 +242,7 @@ class ExerciseDetailScreen extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  exercise.name,
+                  exercise.getName(context),
                   style: TextStyle(
                     color: AppColors.textPrimary,
                     fontSize: 24,
@@ -261,11 +262,11 @@ class ExerciseDetailScreen extends StatelessWidget {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.star_rounded, size: 14, color: AppColors.warmGold),
+                    Icon(Icons.star_rounded, size: 14, color: AppColors.warmGold),
                     const SizedBox(width: 4),
                     Text(
                       '${exercise.xpReward} XP',
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: AppColors.warmGold,
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
@@ -278,7 +279,7 @@ class ExerciseDetailScreen extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            exercise.description,
+            exercise.getDescription(context),
             style: TextStyle(
               color: AppColors.textSecondary,
               fontSize: 14,
@@ -290,7 +291,7 @@ class ExerciseDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildMetaGrid(Exercise exercise) {
+  Widget _buildMetaGrid(BuildContext context, Exercise exercise) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       child: Row(
@@ -298,8 +299,8 @@ class ExerciseDetailScreen extends StatelessWidget {
           Expanded(
             child: _buildMetaCard(
               Icons.timer_outlined,
-              'Duration',
-              exercise.durationDisplay,
+              context.l10n('duration_label'),
+              exercise.getDurationDisplay(context),
               AppColors.burntOrange,
             ),
           ),
@@ -307,8 +308,8 @@ class ExerciseDetailScreen extends StatelessWidget {
           Expanded(
             child: _buildMetaCard(
               Icons.repeat_rounded,
-              'Sets',
-              '${exercise.sets} sets',
+              context.l10n('sets_label'),
+              context.l10n('sets_count', [exercise.sets.toString()]),
               AppColors.burntOrange,
             ),
           ),
@@ -316,8 +317,8 @@ class ExerciseDetailScreen extends StatelessWidget {
           Expanded(
             child: _buildMetaCard(
               Icons.hourglass_bottom_rounded,
-              'Hold Time',
-              '${exercise.holdSeconds}s hold',
+              context.l10n('hold_time_label'),
+              context.l10n('hold_seconds_count', [exercise.holdSeconds.toString()]),
               AppColors.warmGold,
             ),
           ),
@@ -360,7 +361,8 @@ class ExerciseDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildInstructionsSection(Exercise exercise) {
+  Widget _buildInstructionsSection(BuildContext context, Exercise exercise) {
+    final instructions = exercise.getInstructions(context);
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       padding: const EdgeInsets.all(20),
@@ -374,10 +376,10 @@ class ExerciseDetailScreen extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(Icons.format_list_numbered_rounded, color: AppColors.burntOrange, size: 20),
-              SizedBox(width: 8),
+              const Icon(Icons.format_list_numbered_rounded, color: AppColors.burntOrange, size: 20),
+              const SizedBox(width: 8),
               Text(
-                'How to Perform',
+                context.l10n('instructions'),
                 style: TextStyle(
                   color: AppColors.textPrimary,
                   fontSize: 16,
@@ -387,7 +389,7 @@ class ExerciseDetailScreen extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 16),
-          ...exercise.instructions.asMap().entries.map((entry) {
+          ...instructions.asMap().entries.map((entry) {
             final index = entry.key + 1;
             final step = entry.value;
             return Padding(
@@ -433,8 +435,9 @@ class ExerciseDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildCommonMistakesSection(Exercise exercise) {
-    if (exercise.commonMistakes.isEmpty) return const SizedBox.shrink();
+  Widget _buildCommonMistakesSection(BuildContext context, Exercise exercise) {
+    final mistakes = exercise.getCommonMistakes(context);
+    if (mistakes.isEmpty) return const SizedBox.shrink();
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
@@ -456,10 +459,10 @@ class ExerciseDetailScreen extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(Icons.warning_amber_rounded, color: AppColors.dangerRedLight, size: 20),
+              const Icon(Icons.warning_amber_rounded, color: AppColors.dangerRedLight, size: 20),
               const SizedBox(width: 8),
               Text(
-                'Common Mistakes',
+                context.l10n('common_mistakes'),
                 style: TextStyle(
                   color: AppColors.textPrimary,
                   fontSize: 16,
@@ -469,7 +472,7 @@ class ExerciseDetailScreen extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 14),
-          ...exercise.commonMistakes.map((mistake) {
+          ...mistakes.map((mistake) {
             return Padding(
               padding: const EdgeInsets.only(bottom: 8),
               child: Row(
@@ -499,8 +502,9 @@ class ExerciseDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildModificationsSection(Exercise exercise) {
-    if (exercise.modifications.isEmpty) return const SizedBox.shrink();
+  Widget _buildModificationsSection(BuildContext context, Exercise exercise) {
+    final mods = exercise.getModifications(context);
+    if (mods.isEmpty) return const SizedBox.shrink();
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
@@ -523,9 +527,9 @@ class ExerciseDetailScreen extends StatelessWidget {
           Row(
             children: [
               Icon(Icons.tune_rounded, color: AppColors.warmGold, size: 20),
-              SizedBox(width: 8),
+              const SizedBox(width: 8),
               Text(
-                'Modifications',
+                context.l10n('modifications'),
                 style: TextStyle(
                   color: AppColors.textPrimary,
                   fontSize: 16,
@@ -535,14 +539,14 @@ class ExerciseDetailScreen extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 14),
-          ...exercise.modifications.map((modification) {
+          ...mods.map((modification) {
             return Padding(
               padding: const EdgeInsets.only(bottom: 8),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Padding(
-                    padding: EdgeInsets.only(top: 4),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4),
                     child: Icon(Icons.info_outline_rounded, color: AppColors.warmGold, size: 16),
                   ),
                   const SizedBox(width: 10),
@@ -595,14 +599,14 @@ class ExerciseDetailScreen extends StatelessWidget {
             elevation: 4,
             shadowColor: AppColors.burntOrange.withAlpha(60),
           ),
-          child: const Row(
+          child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.play_arrow_rounded, color: Colors.white, size: 24),
-              SizedBox(width: 8),
+              const Icon(Icons.play_arrow_rounded, color: Colors.white, size: 24),
+              const SizedBox(width: 8),
               Text(
-                'Start Exercise',
-                style: TextStyle(
+                context.l10n('start_exercise'),
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 16,
                   fontWeight: FontWeight.w700,

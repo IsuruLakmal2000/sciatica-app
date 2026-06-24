@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../theme/app_theme.dart';
 import '../data/exercise_data.dart';
 import 'session_player_screen.dart';
 import '../state/app_state.dart';
+import '../l10n/app_localizations.dart';
 
 class BedtimeScreen extends StatelessWidget {
   const BedtimeScreen({super.key});
@@ -16,12 +16,12 @@ class BedtimeScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: const Color(0xFF141018),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: AppColors.textPrimary),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
-          'Bedtime Wind-Down',
-          style: TextStyle(color: AppColors.textPrimary, fontSize: 16),
+          context.l10n('bedtime_wind_down'),
+          style: const TextStyle(color: Colors.white, fontSize: 16),
         ),
       ),
       body: SafeArea(
@@ -49,28 +49,28 @@ class BedtimeScreen extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              'Wind Down & Relax',
-              style: TextStyle(
-                color: AppColors.textPrimary,
+              context.l10n('wind_down_relax'),
+              style: const TextStyle(
+                color: Colors.white,
                 fontSize: 22,
                 fontWeight: FontWeight.w800,
               ),
             ),
             const SizedBox(height: 8),
             Text(
-              '${exercises.length} gentle stretches • ~5 minutes',
-              style: TextStyle(
-                color: AppColors.textSecondary,
+              context.l10n('gentle_stretches_minutes', [exercises.length.toString(), '5']),
+              style: const TextStyle(
+                color: Colors.white70,
                 fontSize: 14,
               ),
             ),
             const SizedBox(height: 8),
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 40),
+              padding: const EdgeInsets.symmetric(horizontal: 40),
               child: Text(
-                'Gentle lying stretches to decompress your spine before sleep, reducing morning stiffness.',
-                style: TextStyle(
-                  color: AppColors.textMuted,
+                context.l10n('bedtime_screen_desc'),
+                style: const TextStyle(
+                  color: Colors.white54,
                   fontSize: 13,
                   height: 1.4,
                 ),
@@ -116,18 +116,18 @@ class BedtimeScreen extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                exercise.name,
-                                style: TextStyle(
-                                  color: AppColors.textPrimary,
+                                exercise.getName(context),
+                                style: const TextStyle(
+                                  color: Colors.white,
                                   fontSize: 14,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
                               const SizedBox(height: 2),
                               Text(
-                                '${exercise.holdSeconds}s hold • ${exercise.sets} sets',
-                                style: TextStyle(
-                                  color: AppColors.textMuted,
+                                '${context.l10n('hold_seconds_count', [exercise.holdSeconds.toString()])} • ${context.l10n('sets_count', [exercise.sets.toString()])}',
+                                style: const TextStyle(
+                                  color: Colors.white54,
                                   fontSize: 12,
                                 ),
                               ),
@@ -170,15 +170,15 @@ class BedtimeScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(16),
                     ),
                   ),
-                  child: const Row(
+                  child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.play_arrow_rounded,
+                      const Icon(Icons.play_arrow_rounded,
                           size: 26, color: Colors.white),
-                      SizedBox(width: 8),
+                      const SizedBox(width: 8),
                       Text(
-                        'Begin Wind-Down',
-                        style: TextStyle(
+                        context.l10n('begin_wind_down'),
+                        style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
                           color: Colors.white,

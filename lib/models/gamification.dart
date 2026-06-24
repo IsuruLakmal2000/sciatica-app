@@ -1,3 +1,6 @@
+import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
+
 class GamificationData {
   int totalXP;
   int currentStreak;
@@ -26,6 +29,10 @@ class GamificationData {
     if (totalXP < 4000) return 8;
     if (totalXP < 5500) return 9;
     return 10;
+  }
+
+  String getLevelTitle(BuildContext context) {
+    return context.l10n('level_$currentLevel');
   }
 
   String get levelTitle {
@@ -114,6 +121,14 @@ class Badge {
     required this.icon,
     required this.isUnlocked,
   });
+
+  String getName(BuildContext context) {
+    return context.l10n('badge_$id');
+  }
+
+  String getDescription(BuildContext context) {
+    return context.l10n('badge_${id}_desc');
+  }
 }
 
 final List<Badge> allBadges = [

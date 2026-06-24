@@ -9,6 +9,7 @@ class UserProfile {
   String reminderTime;
   bool notificationsEnabled;
   bool darkMode;
+  bool isPremium;
 
   UserProfile({
     this.name = '',
@@ -21,6 +22,7 @@ class UserProfile {
     this.reminderTime = '08:00',
     this.notificationsEnabled = true,
     this.darkMode = true,
+    this.isPremium = false,
   });
 
   Map<String, dynamic> toMap() {
@@ -35,6 +37,7 @@ class UserProfile {
       'reminderTime': reminderTime,
       'notificationsEnabled': notificationsEnabled ? 1 : 0,
       'darkMode': darkMode ? 1 : 0,
+      'isPremium': isPremium ? 1 : 0,
     };
   }
 
@@ -52,6 +55,7 @@ class UserProfile {
       reminderTime: map['reminderTime'] as String? ?? '08:00',
       notificationsEnabled: (map['notificationsEnabled'] as int?) != 0,
       darkMode: (map['darkMode'] as int?) != 0,
+      isPremium: (map['isPremium'] as int?) == 1,
     );
   }
 }

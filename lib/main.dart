@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'theme/app_theme.dart';
 import 'state/app_state.dart';
 import 'screens/onboarding_screen.dart';
@@ -8,9 +9,14 @@ import 'screens/exercise_library_screen.dart';
 import 'screens/pain_diary_screen.dart';
 import 'screens/education_screen.dart';
 import 'screens/profile_screen.dart';
+import 'l10n/app_localizations.dart';
+import 'services/ad_service.dart';
+import 'services/subscription_service.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await SubscriptionService.initialize();
+  AdService.initialize();
   SystemChrome.setSystemUIOverlayStyle(
     SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
@@ -60,11 +66,25 @@ class _SciaticaAppState extends State<SciaticaApp> {
         theme: _appState.profile.darkMode
             ? AppTheme.darkTheme
             : AppTheme.lightTheme,
+        locale: Locale(_appState.languageCode),
+        supportedLocales: const [
+          Locale('en', ''),
+          Locale('es', ''),
+          Locale('fr', ''),
+          Locale('de', ''),
+          Locale('it', ''),
+        ],
+        localizationsDelegates: const [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
         home: _appState.isLoading
             ? const _SplashScreen()
             : _appState.hasCompletedOnboarding
-                ? const MainNavigation()
-                : const OnboardingScreen(),
+            ? const MainNavigation()
+            : const OnboardingScreen(),
       ),
     );
   }
@@ -99,11 +119,7 @@ class _SplashScreen extends StatelessWidget {
                   ),
                 ],
               ),
-              child: const Icon(
-                Icons.healing,
-                color: Colors.white,
-                size: 40,
-              ),
+              child: const Icon(Icons.healing, color: Colors.white, size: 40),
             ),
             const SizedBox(height: 20),
             Text(
@@ -120,8 +136,9 @@ class _SplashScreen extends StatelessWidget {
               height: 28,
               child: CircularProgressIndicator(
                 strokeWidth: 3,
-                valueColor:
-                    const AlwaysStoppedAnimation<Color>(AppColors.burntOrange),
+                valueColor: const AlwaysStoppedAnimation<Color>(
+                  AppColors.burntOrange,
+                ),
               ),
             ),
           ],
@@ -162,27 +179,32 @@ class _MainNavigationState extends State<MainNavigation> {
         ),
         child: BottomNavigationBar(
           currentIndex: _currentIndex,
-          onTap: (index) => setState(() => _currentIndex = index),
-          items: const [
+          onTap: (index) {
+            setState(() => _currentIndex = index);
+            if (index == 2) {
+              AdService.showNextDayAdIfApplicable(context);
+            }
+          },
+          items: [
             BottomNavigationBarItem(
-              icon: Icon(Icons.home_rounded),
-              label: 'Home',
+              icon: const Icon(Icons.home_rounded),
+              label: context.l10n('nav_home'),
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.fitness_center),
-              label: 'Exercises',
+              icon: const Icon(Icons.fitness_center),
+              label: context.l10n('nav_exercises'),
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.edit_note),
-              label: 'Diary',
+              icon: const Icon(Icons.edit_note),
+              label: context.l10n('nav_diary'),
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.menu_book_rounded),
-              label: 'Learn',
+              icon: const Icon(Icons.menu_book_rounded),
+              label: context.l10n('nav_learn'),
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.person_rounded),
-              label: 'Profile',
+              icon: const Icon(Icons.person_rounded),
+              label: context.l10n('nav_profile'),
             ),
           ],
         ),

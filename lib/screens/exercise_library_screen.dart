@@ -4,6 +4,7 @@ import '../data/exercise_data.dart';
 import '../models/exercise.dart';
 import 'exercise_detail_screen.dart';
 import '../state/app_state.dart';
+import '../l10n/app_localizations.dart';
 
 class ExerciseLibraryScreen extends StatefulWidget {
   const ExerciseLibraryScreen({super.key});
@@ -56,21 +57,21 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
 
   Widget _buildHeader() {
     return Padding(
-      padding: EdgeInsets.fromLTRB(20, 16, 20, 8),
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Exercise Library',
+            context.l10n('exercise_library'),
             style: TextStyle(
               color: AppColors.textPrimary,
               fontSize: 26,
               fontWeight: FontWeight.w800,
             ),
           ),
-          SizedBox(height: 4),
+          const SizedBox(height: 4),
           Text(
-            'Sciatica-specific exercises & stretches',
+            context.l10n('exercise_library_sub'),
             style: TextStyle(
               color: AppColors.textSecondary,
               fontSize: 14,
@@ -83,10 +84,10 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
 
   Widget _buildCategoryFilters() {
     final categories = [
-      {'value': 'all', 'label': 'All', 'icon': Icons.grid_view_rounded},
-      {'value': 'stretch', 'label': 'Stretches', 'icon': Icons.self_improvement},
-      {'value': 'strengthen', 'label': 'Strengthen', 'icon': Icons.fitness_center},
-      {'value': 'decompress', 'label': 'Decompress', 'icon': Icons.expand},
+      {'value': 'all', 'label': context.l10n('filter_all'), 'icon': Icons.grid_view_rounded},
+      {'value': 'stretch', 'label': context.l10n('filter_stretches'), 'icon': Icons.self_improvement},
+      {'value': 'strengthen', 'label': context.l10n('category_strengthen'), 'icon': Icons.fitness_center},
+      {'value': 'decompress', 'label': context.l10n('category_decompress'), 'icon': Icons.expand},
     ];
 
     return SizedBox(
@@ -151,7 +152,7 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
         children: difficulties.map((diff) {
           final isSelected = _selectedDifficulty == diff;
           final label =
-              diff == 'all' ? 'All Levels' : '${diff[0].toUpperCase()}${diff.substring(1)}';
+              diff == 'all' ? context.l10n('filter_all_levels') : context.l10n('difficulty_$diff');
           return Padding(
             padding: const EdgeInsets.only(right: 8),
             child: GestureDetector(
@@ -220,7 +221,7 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    exercise.name,
+                    exercise.getName(context),
                     style: TextStyle(
                       color: AppColors.textPrimary,
                       fontSize: 15,
@@ -230,16 +231,16 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
                   const SizedBox(height: 4),
                   Row(
                     children: [
-                      _buildTag(exercise.categoryDisplay, AppColors.burntOrange),
+                      _buildTag(exercise.getCategoryDisplay(context), AppColors.burntOrange),
                       const SizedBox(width: 6),
                       _buildTag(
-                          exercise.difficultyDisplay, AppColors.warmGold),
+                          exercise.getDifficultyDisplay(context), AppColors.warmGold),
                       const SizedBox(width: 6),
                       Icon(Icons.timer_outlined,
                           size: 12, color: AppColors.textMuted),
                       const SizedBox(width: 3),
                       Text(
-                        exercise.durationDisplay,
+                        exercise.getDurationDisplay(context),
                         style: TextStyle(
                           color: AppColors.textMuted,
                           fontSize: 11,
@@ -251,9 +252,9 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
                   Row(
                     children: [
                       if (exercise.flareUpFriendly)
-                        _buildSmallBadge('Flare-up safe', AppColors.forestGreen),
+                        _buildSmallBadge(context.l10n('flare_up_safe'), AppColors.forestGreen),
                       if (exercise.bedFriendly)
-                        _buildSmallBadge('Bed-friendly', const Color(0xFFB4A0E8)),
+                        _buildSmallBadge(context.l10n('bed_friendly'), const Color(0xFFB4A0E8)),
                     ],
                   ),
                 ],
@@ -267,7 +268,7 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
               ),
               child: Text(
                 '${exercise.xpReward}XP',
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppColors.warmGold,
                   fontSize: 11,
                   fontWeight: FontWeight.w700,

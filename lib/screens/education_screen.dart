@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../data/education_data.dart';
 import '../state/app_state.dart';
+import '../l10n/app_localizations.dart';
+import '../services/ad_service.dart';
 
 class EducationScreen extends StatelessWidget {
   const EducationScreen({super.key});
@@ -14,7 +16,7 @@ class EducationScreen extends StatelessWidget {
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
-            SliverToBoxAdapter(child: _buildHeader()),
+            SliverToBoxAdapter(child: _buildHeader(context)),
             SliverList(
               delegate: SliverChildBuilderDelegate(
                 (context, index) {
@@ -31,23 +33,23 @@ class EducationScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.fromLTRB(20, 16, 20, 12),
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Learn',
+            context.l10n('nav_learn'),
             style: TextStyle(
               color: AppColors.textPrimary,
               fontSize: 26,
               fontWeight: FontWeight.w800,
             ),
           ),
-          SizedBox(height: 4),
+          const SizedBox(height: 4),
           Text(
-            'Understand your sciatica & recover faster',
+            context.l10n('learn_sub'),
             style: TextStyle(
               color: AppColors.textSecondary,
               fontSize: 14,
@@ -90,7 +92,7 @@ class EducationScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    article.title,
+                    article.getTitle(context),
                     style: TextStyle(
                       color: AppColors.textPrimary,
                       fontSize: 15,
@@ -99,7 +101,7 @@ class EducationScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    article.summary,
+                    article.getSummary(context),
                     style: TextStyle(
                       color: AppColors.textSecondary,
                       fontSize: 12,
@@ -115,7 +117,7 @@ class EducationScreen extends StatelessWidget {
                           size: 12, color: AppColors.textMuted),
                       const SizedBox(width: 4),
                       Text(
-                        '${article.readingTimeMinutes} min read',
+                        context.l10n('min_read', [article.readingTimeMinutes.toString()]),
                         style: TextStyle(
                           color: AppColors.textMuted,
                           fontSize: 11,
@@ -138,12 +140,15 @@ class EducationScreen extends StatelessWidget {
     );
   }
 
-  void _openArticle(BuildContext context, EducationArticle article) {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => _ArticleDetailScreen(article: article),
-      ),
-    );
+  void _openArticle(BuildContext context, EducationArticle article) async {
+    await AdService.showInterstitial(context);
+    if (context.mounted) {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => _ArticleDetailScreen(article: article),
+        ),
+      );
+    }
   }
 }
 
@@ -164,7 +169,7 @@ class _ArticleDetailScreen extends StatelessWidget {
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
-          article.title,
+          article.getTitle(context),
           style: const TextStyle(fontSize: 16),
         ),
       ),
@@ -191,7 +196,7 @@ class _ArticleDetailScreen extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             Text(
-              article.title,
+              article.getTitle(context),
               style: TextStyle(
                 color: AppColors.textPrimary,
                 fontSize: 24,
@@ -205,7 +210,7 @@ class _ArticleDetailScreen extends StatelessWidget {
                     size: 14, color: AppColors.textMuted),
                 const SizedBox(width: 4),
                 Text(
-                  '${article.readingTimeMinutes} min read',
+                  context.l10n('min_read', [article.readingTimeMinutes.toString()]),
                   style: TextStyle(
                     color: AppColors.textMuted,
                     fontSize: 13,
@@ -217,7 +222,7 @@ class _ArticleDetailScreen extends StatelessWidget {
             Divider(color: AppColors.warmBorder),
             const SizedBox(height: 20),
             // Article body — render with basic formatting
-            ..._renderBody(article.body),
+            ..._renderBody(article.getBody(context)),
             const SizedBox(height: 40),
           ],
         ),

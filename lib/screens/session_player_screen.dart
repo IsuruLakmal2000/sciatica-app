@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:in_app_review/in_app_review.dart';
 import '../theme/app_theme.dart';
 import '../models/exercise.dart';
 import '../state/app_state.dart';
 import '../widgets/countdown_timer.dart';
 import '../widgets/exercise_animation_player.dart';
+import '../l10n/app_localizations.dart';
+import '../services/ad_service.dart';
 
 class SessionPlayerScreen extends StatefulWidget {
   final List<Exercise> exercises;
@@ -25,10 +28,9 @@ class _SessionPlayerScreenState extends State<SessionPlayerScreen>
   int _currentSet = 1;
   int _currentStep = 0;
   bool _isResting = false;
-  bool _isPaused = false;
+  bool _isPaused = true;
   bool _isCompleted = false;
   int _earnedXP = 0;
-  final GlobalKey<CountdownTimerState> _timerKey = GlobalKey();
   late AnimationController _pulseController;
 
   Exercise get _currentExercise => widget.exercises[_currentIndex];
@@ -84,15 +86,34 @@ class _SessionPlayerScreenState extends State<SessionPlayerScreen>
     } else {
       // Session complete
       setState(() => _isCompleted = true);
+      _handleSessionCompletion();
+    }
+  }
+
+  void _handleSessionCompletion() async {
+    final state = AppStateProvider.of(context);
+    final totalCompleted = state.completedExercises.length;
+
+    if (totalCompleted == 1) {
+      // First exercise completed! Show native in-app review popup and do NOT show ads.
+      try {
+        final InAppReview inAppReview = InAppReview.instance;
+        if (await inAppReview.isAvailable()) {
+          await inAppReview.requestReview();
+        }
+      } catch (e) {
+        debugPrint('Error showing in-app review: $e');
+      }
+    } else {
+      // Subsequent exercise completed.
+      // 1. Show interstitial ad (subject to 5-minute cooldown)
+      AdService.showInterstitial(context);
+      // 2. Consume the next-day trigger so they don't get double-ads if they visit the diary right after!
+      AdService.consumeNextDayTrigger();
     }
   }
 
   void _togglePause() {
-    if (_isPaused) {
-      _timerKey.currentState?.resume();
-    } else {
-      _timerKey.currentState?.pause();
-    }
     setState(() => _isPaused = !_isPaused);
   }
 
@@ -177,11 +198,11 @@ class _SessionPlayerScreenState extends State<SessionPlayerScreen>
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.star_rounded, size: 14, color: AppColors.warmGold),
+                Icon(Icons.star_rounded, size: 14, color: AppColors.warmGold),
                 const SizedBox(width: 4),
                 Text(
                   '+${_earnedXP}XP',
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.warmGold,
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
@@ -247,7 +268,7 @@ class _SessionPlayerScreenState extends State<SessionPlayerScreen>
         const SizedBox(height: 24),
         // Exercise name
         Text(
-          _isResting ? 'Rest' : _currentExercise.name,
+          _isResting ? context.l10n('rest') : _currentExercise.getName(context),
           style: TextStyle(
             color: AppColors.textPrimary,
             fontSize: 24,
@@ -258,8 +279,8 @@ class _SessionPlayerScreenState extends State<SessionPlayerScreen>
         const SizedBox(height: 8),
         Text(
           _isResting
-              ? 'Relax before the next set'
-              : 'Set $_currentSet of ${_currentExercise.sets}',
+              ? context.l10n('relax_before_next_set')
+              : context.l10n('set_counter', [_currentSet.toString(), _currentExercise.sets.toString()]),
           style: TextStyle(
             color: AppColors.textSecondary,
             fontSize: 14,
@@ -271,16 +292,17 @@ class _SessionPlayerScreenState extends State<SessionPlayerScreen>
           key: ValueKey('${_currentIndex}_${_currentSet}_$_isResting'),
           totalSeconds: _isResting ? 15 : _currentExercise.holdSeconds,
           onComplete: _onTimerComplete,
+          isPaused: _isPaused,
           color: _isResting ? AppColors.forestGreen : AppColors.burntOrange,
         ),
         const SizedBox(height: 24),
         // Current instruction
         if (!_isResting &&
-            _currentStep < _currentExercise.instructions.length)
+            _currentStep < _currentExercise.getInstructions(context).length)
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 32),
             child: Text(
-              _currentExercise.instructions[_currentStep],
+              _currentExercise.getInstructions(context)[_currentStep],
               style: TextStyle(
                 color: AppColors.textSecondary,
                 fontSize: 14,
@@ -309,7 +331,7 @@ class _SessionPlayerScreenState extends State<SessionPlayerScreen>
           // Previous step
           _buildControlButton(
             icon: Icons.skip_previous_rounded,
-            label: 'Prev',
+            label: context.l10n('control_prev'),
             onTap: () {
               if (_currentStep > 0) {
                 setState(() => _currentStep--);
@@ -343,9 +365,9 @@ class _SessionPlayerScreenState extends State<SessionPlayerScreen>
           // Next step / Skip
           _buildControlButton(
             icon: Icons.skip_next_rounded,
-            label: 'Next',
+            label: context.l10n('control_next'),
             onTap: () {
-              if (_currentStep < _currentExercise.instructions.length - 1) {
+              if (_currentStep < _currentExercise.getInstructions(context).length - 1) {
                 setState(() => _currentStep++);
               }
             },
@@ -416,7 +438,7 @@ class _SessionPlayerScreenState extends State<SessionPlayerScreen>
                 ),
                 const SizedBox(height: 24),
                 Text(
-                  'Session Complete! 🎉',
+                  context.l10n('session_complete_emoji'),
                   style: TextStyle(
                     color: AppColors.textPrimary,
                     fontSize: 28,
@@ -425,7 +447,7 @@ class _SessionPlayerScreenState extends State<SessionPlayerScreen>
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  'Great job! You\'re one step closer to recovery.',
+                  context.l10n('session_complete_desc'),
                   style: TextStyle(
                     color: AppColors.textSecondary,
                     fontSize: 15,
@@ -443,7 +465,7 @@ class _SessionPlayerScreenState extends State<SessionPlayerScreen>
                   ),
                   child: Column(
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.star_rounded,
                         color: AppColors.warmGold,
                         size: 36,
@@ -451,7 +473,7 @@ class _SessionPlayerScreenState extends State<SessionPlayerScreen>
                       const SizedBox(height: 8),
                       Text(
                         '+$_earnedXP XP',
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: AppColors.warmGold,
                           fontSize: 32,
                           fontWeight: FontWeight.w800,
@@ -459,7 +481,7 @@ class _SessionPlayerScreenState extends State<SessionPlayerScreen>
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'Experience earned',
+                        context.l10n('experience_earned'),
                         style: TextStyle(
                           color: AppColors.textSecondary,
                           fontSize: 13,
@@ -490,7 +512,7 @@ class _SessionPlayerScreenState extends State<SessionPlayerScreen>
                               ),
                             ),
                             Text(
-                              'Exercises',
+                              context.l10n('exercises_label'),
                               style: TextStyle(
                                 color: AppColors.textMuted,
                                 fontSize: 12,
@@ -520,7 +542,7 @@ class _SessionPlayerScreenState extends State<SessionPlayerScreen>
                               ),
                             ),
                             Text(
-                              'Minutes',
+                              context.l10n('minutes_label'),
                               style: TextStyle(
                                 color: AppColors.textMuted,
                                 fontSize: 12,
@@ -538,7 +560,7 @@ class _SessionPlayerScreenState extends State<SessionPlayerScreen>
                   height: 54,
                   child: ElevatedButton(
                     onPressed: () => Navigator.of(context).pop(),
-                    child: const Text('Done'),
+                    child: Text(context.l10n('finish')),
                   ),
                 ),
               ],
@@ -560,24 +582,24 @@ class _SessionPlayerScreenState extends State<SessionPlayerScreen>
         backgroundColor: AppColors.darkSurface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Text(
-          'End session?',
+          context.l10n('exit_dialog_title'),
           style: TextStyle(color: AppColors.textPrimary),
         ),
         content: Text(
-          'Your progress will be saved, but you won\'t earn XP for remaining exercises.',
+          context.l10n('exit_dialog_desc'),
           style: TextStyle(color: AppColors.textSecondary),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('Continue', style: TextStyle(color: AppColors.burntOrange)),
+            child: Text(context.l10n('continue_btn'), style: const TextStyle(color: AppColors.burntOrange)),
           ),
           TextButton(
             onPressed: () {
               Navigator.of(ctx).pop();
               Navigator.of(context).pop();
             },
-            child: const Text('End', style: TextStyle(color: AppColors.dangerRed)),
+            child: Text(context.l10n('exit_dialog_end'), style: const TextStyle(color: AppColors.dangerRed)),
           ),
         ],
       ),

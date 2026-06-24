@@ -3,6 +3,7 @@ import '../theme/app_theme.dart';
 import '../models/exercise.dart';
 import '../data/exercise_data.dart';
 import '../state/app_state.dart';
+import '../l10n/app_localizations.dart';
 
 class CustomSessionScreen extends StatefulWidget {
   const CustomSessionScreen({super.key});
@@ -67,7 +68,7 @@ class _CustomSessionScreenState extends State<CustomSessionScreen> {
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
-          'Customize Session',
+          context.l10n('customize_session'),
           style: TextStyle(
             color: AppColors.textPrimary,
             fontSize: 16,
@@ -82,9 +83,9 @@ class _CustomSessionScreenState extends State<CustomSessionScreen> {
                   _selectedExerciseIds.clear();
                 });
               },
-              child: const Text(
-                'Clear All',
-                style: TextStyle(
+              child: Text(
+                context.l10n('clear_all'),
+                style: const TextStyle(
                   color: AppColors.burntOrange,
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
@@ -122,7 +123,7 @@ class _CustomSessionScreenState extends State<CustomSessionScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        '${_selectedExerciseIds.length} exercises selected',
+                        context.l10n('exercises_selected', [_selectedExerciseIds.length.toString()]),
                         style: TextStyle(
                           color: AppColors.textPrimary,
                           fontSize: 15,
@@ -131,7 +132,7 @@ class _CustomSessionScreenState extends State<CustomSessionScreen> {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        'Total duration: $totalDurationMins min',
+                        context.l10n('total_duration_mins', [totalDurationMins.toString()]),
                         style: TextStyle(
                           color: AppColors.textSecondary,
                           fontSize: 12,
@@ -148,11 +149,11 @@ class _CustomSessionScreenState extends State<CustomSessionScreen> {
             child: ListView(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               children: [
-                _buildCategorySection('Stretches', grouped['stretch'] ?? [], Colors.teal),
+                _buildCategorySection(context.l10n('category_stretches'), grouped['stretch'] ?? [], Colors.teal),
                 const SizedBox(height: 20),
-                _buildCategorySection('Strengthening', grouped['strengthen'] ?? [], AppColors.burntOrange),
+                _buildCategorySection(context.l10n('category_strengthening'), grouped['strengthen'] ?? [], AppColors.burntOrange),
                 const SizedBox(height: 20),
-                _buildCategorySection('Decompression', grouped['decompress'] ?? [], AppColors.warmGold),
+                _buildCategorySection(context.l10n('category_decompression'), grouped['decompress'] ?? [], AppColors.warmGold),
                 const SizedBox(height: 100), // padding for floating action button
               ],
             ),
@@ -184,7 +185,7 @@ class _CustomSessionScreenState extends State<CustomSessionScreen> {
               shadowColor: AppColors.burntOrange.withAlpha(60),
             ),
             child: Text(
-              _selectedExerciseIds.isEmpty ? 'Cancel & Exit' : 'Save Custom Session',
+              _selectedExerciseIds.isEmpty ? context.l10n('cancel_exit') : context.l10n('save_custom_session'),
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 16,
@@ -281,7 +282,7 @@ class _CustomSessionScreenState extends State<CustomSessionScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            exercise.name,
+                            exercise.getName(context),
                             style: TextStyle(
                               color: isSelected
                                   ? AppColors.textPrimary
@@ -296,7 +297,7 @@ class _CustomSessionScreenState extends State<CustomSessionScreen> {
                               Icon(Icons.timer_outlined, size: 12, color: AppColors.textMuted),
                               const SizedBox(width: 4),
                               Text(
-                                exercise.durationDisplay,
+                                exercise.getDurationDisplay(context),
                                 style: TextStyle(
                                   color: AppColors.textMuted,
                                   fontSize: 11,
@@ -307,7 +308,7 @@ class _CustomSessionScreenState extends State<CustomSessionScreen> {
                               Icon(Icons.speed, size: 12, color: AppColors.textMuted),
                               const SizedBox(width: 4),
                               Text(
-                                exercise.difficultyDisplay,
+                                exercise.getDifficultyDisplay(context),
                                 style: TextStyle(
                                   color: AppColors.textMuted,
                                   fontSize: 11,

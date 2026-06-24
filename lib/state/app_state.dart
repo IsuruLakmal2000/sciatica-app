@@ -8,6 +8,8 @@ import '../models/gamification.dart';
 import '../models/pain_entry.dart';
 import '../models/exercise.dart';
 import '../data/exercise_data.dart';
+import '../services/notification_service.dart';
+import '../services/subscription_service.dart';
 
 class AppState extends ChangeNotifier {
   Database? _db;
@@ -19,6 +21,7 @@ class AppState extends ChangeNotifier {
   bool _isLoading = true;
   int _todaysPainScore = 0;
   List<String> _customSessionExerciseIds = [];
+  String _languageCode = 'en';
 
   // ── Getters ──
   UserProfile get profile => _profile;
@@ -30,6 +33,7 @@ class AppState extends ChangeNotifier {
   int get todaysPainScore => _todaysPainScore;
   bool get hasCompletedOnboarding => _profile.onboardingCompleted;
   List<String> get customSessionExerciseIds => _customSessionExerciseIds;
+  String get languageCode => _languageCode;
 
   List<Exercise> get customSessionExercises {
     return _customSessionExerciseIds
@@ -55,6 +59,34 @@ class AppState extends ChangeNotifier {
       await prefs.setStringList('custom_session_exercises', exerciseIds);
     } catch (e) {
       debugPrint('Error saving custom session: $e');
+    }
+  }
+
+  Future<void> loadLanguage() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      _languageCode = prefs.getString('app_language') ?? 'en';
+    } catch (e) {
+      debugPrint('Error loading language: $e');
+    }
+  }
+
+  Future<void> setLanguage(String code) async {
+    _languageCode = code;
+    notifyListeners();
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('app_language', code);
+      
+      // Reschedule reminders in the new language
+      NotificationService().scheduleReminder(
+        enabled: _profile.notificationsEnabled,
+        timeStr: _profile.reminderTime,
+        lang: _languageCode,
+      );
+    } catch (e) {
+      debugPrint('Error saving language: $e');
     }
   }
 
@@ -144,7 +176,7 @@ class AppState extends ChangeNotifier {
 
       _db = await openDatabase(
         path,
-        version: 1,
+        version: 2,
         onCreate: (db, version) async {
           await db.execute('''
             CREATE TABLE user_profile (
@@ -158,7 +190,8 @@ class AppState extends ChangeNotifier {
               onboardingCompleted INTEGER DEFAULT 0,
               reminderTime TEXT DEFAULT '08:00',
               notificationsEnabled INTEGER DEFAULT 1,
-              darkMode INTEGER DEFAULT 1
+              darkMode INTEGER DEFAULT 1,
+              isPremium INTEGER DEFAULT 0
             )
           ''');
           await db.execute('''
@@ -195,10 +228,46 @@ class AppState extends ChangeNotifier {
           await db.insert('user_profile', UserProfile().toMap()..['id'] = 1);
           await db.insert('gamification', GamificationData().toMap()..['id'] = 1);
         },
+        onUpgrade: (db, oldVersion, newVersion) async {
+          if (oldVersion < 2) {
+            await db.execute(
+              'ALTER TABLE user_profile ADD COLUMN isPremium INTEGER DEFAULT 0',
+            );
+          }
+        },
       );
 
       await _loadAll();
+      
+      // Listen to RevenueCat premium status changes and sync to state
+      SubscriptionService.isPremiumNotifier.addListener(() {
+        final premium = SubscriptionService.isPremiumNotifier.value;
+        if (_profile.isPremium != premium) {
+          setPremiumStatus(premium);
+        }
+      });
+      
+      // Perform initial check
+      try {
+        final rcPremium = await SubscriptionService.checkPremiumStatus();
+        if (_profile.isPremium != rcPremium) {
+          setPremiumStatus(rcPremium);
+        }
+      } catch (e) {
+        debugPrint('Error syncing initial RevenueCat premium status: $e');
+      }
+
       await loadCustomSession();
+      await loadLanguage();
+      
+      // Initialize local notifications service and schedule reminder
+      final notificationService = NotificationService();
+      await notificationService.init();
+      await notificationService.scheduleReminder(
+        enabled: _profile.notificationsEnabled,
+        timeStr: _profile.reminderTime,
+        lang: _languageCode,
+      );
     } catch (e, stack) {
       debugPrint('DB Error during initialize: $e');
       debugPrint(stack.toString());
@@ -259,6 +328,13 @@ class AppState extends ChangeNotifier {
     _profile = updatedProfile;
     await _db?.update('user_profile', _profile.toMap(), where: 'id = 1');
     notifyListeners();
+    
+    // Reschedule daily reminder matching updated setting parameters
+    NotificationService().scheduleReminder(
+      enabled: _profile.notificationsEnabled,
+      timeStr: _profile.reminderTime,
+      lang: _languageCode,
+    );
   }
 
   Future<void> completeOnboarding(UserProfile profile) async {
@@ -357,6 +433,12 @@ class AppState extends ChangeNotifier {
 
   Future<void> setDarkMode(bool value) async {
     _profile.darkMode = value;
+    await _db?.update('user_profile', _profile.toMap(), where: 'id = 1');
+    notifyListeners();
+  }
+
+  Future<void> setPremiumStatus(bool value) async {
+    _profile.isPremium = value;
     await _db?.update('user_profile', _profile.toMap(), where: 'id = 1');
     notifyListeners();
   }
